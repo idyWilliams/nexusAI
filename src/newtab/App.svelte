@@ -123,6 +123,22 @@
     // This could be enhanced with a specific tab state in future
   }
 
+  async function handleAiSummaryRequest() {
+    try {
+      await sendToBackground({ type: 'AI_SUMMARIZE_REQUEST' })
+    } catch (error) {
+      console.error('Failed to request AI summary:', error)
+    }
+  }
+
+  async function handleAiTaskPolishRequest(candidateId: string) {
+    try {
+      await sendToBackground({ type: 'AI_POLISH_TASK_REQUEST', candidateId })
+    } catch (error) {
+      console.error('Failed to request AI task polish:', error)
+    }
+  }
+
   function onDocumentKeydown(e: KeyboardEvent) {
     if (e.key !== 'Escape') return
     if (gameOpen) {
@@ -236,11 +252,16 @@
     <!-- Assistant panel: positioned below Continue, alongside other content -->
     <AssistantPanel
       assistant={hydrate.assistant}
+      aiSession={hydrate.aiSession}
+      settings={hydrate.settings}
+      taskCandidate={hydrate.taskCandidate}
       {mode}
       on:openTransparency={openTransparency}
       on:acceptTask={(e) => void acceptTask()}
       on:dismissTask={(e) => void dismissTask()}
       on:dismissSuggestion={(e) => dismissAssistantSuggestion(e.detail.suggestionId)}
+      on:aiSummaryRequest={() => handleAiSummaryRequest()}
+      on:aiTaskPolishRequest={(e) => handleAiTaskPolishRequest(e.detail.candidateId)}
     />
 
     {#if mode === 'normal' || mode === 'minimal'}

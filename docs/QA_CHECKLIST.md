@@ -37,13 +37,13 @@ Use after `npm run build` and loading **unpacked** from `dist/`. Chrome or Chrom
 ## AI features (disabled by default)
 
 - [ ] **AI toggle** — AI features are OFF by default; Settings shows clear toggle.
-- [ ] **Feature toggles** — Individual controls for "AI summaries" and "Task polish".
-- [ ] **Mock behavior** — With mock provider, AI features work without real API calls.
-- [ ] **"Explain what I was doing"** — Button appears when AI summaries enabled; generates context summary.
-- [ ] **AI-assisted badge** — Shows "(AI-assisted)" indicator on AI-generated content.
-- [ ] **Task polish** — "Improve wording" button appears for task candidates when enabled.
-- [ ] **Loading states** — Shows loading spinner during AI requests; other UI remains interactive.
-- [ ] **Error handling** — Graceful fallback to local behavior when AI fails.
+- [x] **Feature toggles** — Individual controls for "AI summaries" and "Task polish".
+- [x] **Mock behavior** — With mock provider, AI features work without real API calls.
+- [x] **"Explain what I was doing"** — Button appears when AI summaries enabled; generates context summary.
+- [x] **AI-assisted badge** — Shows "(AI-assisted)" indicator on AI-generated content.
+- [x] **Task polish** — "Improve wording" button appears for task candidates when enabled.
+- [x] **Loading states** — Shows loading spinner during AI requests; other UI remains interactive.
+- [x] **Error handling** — Graceful fallback to local behavior when AI fails.
 - [ ] **Rate limiting** — After 3 requests, shows "try again later" message.
 - [ ] **Data privacy** — No full URLs or page content sent to AI (verify with mock logs).
 
@@ -54,6 +54,39 @@ Use after `npm run build` and loading **unpacked** from `dist/`. Chrome or Chrom
 | Normal  | Yes      | Yes       | If candidate | Hero + Settings (minimal link N/A) |
 | Focus   | Yes      | No        | No        | Subtle link + Settings |
 | Minimal | No       | Yes       | No        | Via Settings only      |
+
+## AI Manual Testing Steps
+
+### Basic AI Setup
+1. Load extension with default settings
+2. Verify AI features are disabled by default
+3. Enable AI globally in Settings
+4. Enable individual AI features (summaries, task polish)
+5. Verify mock adapter works without API keys
+
+### AI Summary Testing
+1. With AI summaries enabled, verify "Explain what I was doing" button appears
+2. Click button and verify loading state shows
+3. Verify success state shows AI-assisted content
+4. Test error state by disabling AI provider
+5. Verify fallback to local view works
+
+### Task Polish Testing
+1. With task polish enabled and task candidate present, verify "Improve wording" button appears
+2. Click button and verify loading state
+3. Verify polished content appears with accept/dismiss actions
+4. Test that accepting feeds into existing task flow
+5. Test that dismissing removes only polished suggestion
+
+### Mode Discipline Testing
+1. **Normal mode**: Both AI controls visible and functional
+2. **Focus mode**: Only AI summary visible, task polish hidden
+3. **Minimal mode**: All AI controls hidden
+
+### Rate Limiting Testing
+1. Make 3 AI requests in quick succession
+2. Verify 4th request shows rate limit message
+3. Wait 30 minutes and verify requests work again
 
 ## Regression triggers
 
