@@ -189,97 +189,120 @@
   </main>
 {:else}
   <main class="page shell" aria-label="NEXUS new tab">
-    <header class="hero">
-      <div>
-        <p class="time" aria-live="polite">{timeLabel}</p>
-        <h1 class="greet">{greeting(new Date())}</h1>
-        {#if mode !== 'minimal'}
-          <p class="subtle">Calm surface. One intention at a glance.</p>
-        {/if}
-      </div>
-      <div class="actions">
-        {#if mode !== 'minimal'}
-          <span class="pill" title="Current mode">{mode} mode</span>
-        {/if}
-        {#if mode === 'normal'}
-          <button
-            type="button"
-            class="ghost"
-            class:ghost-quiet={recoveryRecent}
-            on:click={() => (gameOpen = true)}
-            aria-label="Open recovery moment"
-          >
-            Recover
-          </button>
-        {:else if mode === 'focus'}
-          <button
-            type="button"
-            class="link-quiet"
-            on:click={() => (gameOpen = true)}
-            aria-label="Recovery (subtle)"
-          >
-            Recovery
-          </button>
-        {/if}
-        {#if mode === 'minimal'}
-          <button
-            type="button"
-            class="icon-ghost"
-            on:click={() => (settingsOpen = true)}
-            aria-label="Settings"
-            title="Settings"
-          >
-            <span class="gear" aria-hidden="true">⚙</span>
-          </button>
-        {:else}
-          <button type="button" class="ghost" on:click={() => (settingsOpen = true)} aria-label="Open settings">
-            Settings
-          </button>
-        {/if}
+    <header class="nexus-header">
+      <div class="header-content">
+        <div class="brand">
+          <div class="time-display" aria-live="polite">{timeLabel}</div>
+          <h1 class="greeting">{greeting(new Date())}</h1>
+          {#if mode !== 'minimal'}
+            <p class="tagline">Calm surface. One intention at a glance.</p>
+          {/if}
+        </div>
+        
+        <div class="header-controls">
+          {#if mode !== 'minimal'}
+            <div class="mode-indicator">
+              <span class="mode-label">{mode}</span>
+            </div>
+          {/if}
+          
+          <div class="control-actions">
+            {#if mode === 'normal'}
+              <button
+                type="button"
+                class="control-btn recovery-btn"
+                class:subtle={recoveryRecent}
+                on:click={() => (gameOpen = true)}
+                aria-label="Open recovery moment"
+              >
+                <span class="btn-icon">◉</span>
+                <span class="btn-text">Recover</span>
+              </button>
+            {:else if mode === 'focus'}
+              <button
+                type="button"
+                class="control-btn subtle-btn"
+                on:click={() => (gameOpen = true)}
+                aria-label="Recovery (subtle)"
+              >
+                Recovery
+              </button>
+            {/if}
+            
+            <button
+              type="button"
+              class="control-btn settings-btn"
+              on:click={() => (settingsOpen = true)}
+              aria-label="Open settings"
+            >
+              <span class="btn-icon">⚙</span>
+              {#if mode !== 'minimal'}<span class="btn-text">Settings</span>{/if}
+            </button>
+          </div>
+        </div>
       </div>
     </header>
 
-    {#if mode !== 'minimal'}
-      <section class="grid" aria-label="Primary">
-        <ContinueModule
-          suggestion={hydrate.suggestions[0] ?? null}
-          emptyReason={hydrate.continueEmptyReason}
-          onDismiss={dismissSuggestion}
-        />
-      </section>
-    {/if}
+    <!-- Premium main content with asymmetric layout -->
+    <div class="nexus-content" class:minimal={mode === 'minimal'} class:focus={mode === 'focus'}>
+      <div class="content-grid">
+        <!-- Primary focus area -->
+        <div class="primary-zone">
+          {#if mode !== 'minimal'}
+            <section class="continue-section" aria-label="Primary action">
+              <ContinueModule
+                suggestion={hydrate.suggestions[0] ?? null}
+                emptyReason={hydrate.continueEmptyReason}
+                onDismiss={dismissSuggestion}
+              />
+            </section>
+          {/if}
+          
+          {#if hydrate.taskCandidate && mode === 'normal'}
+            <section class="task-candidate premium-card" aria-label="Suggested follow-up">
+              <div class="task-content">
+                <div class="task-header">
+                  <span class="task-badge">Optional</span>
+                  <h3 class="task-title">{hydrate.taskCandidate.titleGuess}</h3>
+                </div>
+                <p class="task-description">{hydrate.taskCandidate.provenance.evidenceSummary}</p>
+              </div>
+              <div class="task-actions">
+                <button type="button" class="btn btn-primary" on:click={() => void acceptTask()}>
+                  Save Task
+                </button>
+                <button type="button" class="btn btn-ghost" on:click={() => void dismissTask()}>
+                  Dismiss
+                </button>
+              </div>
+            </section>
+          {/if}
+        </div>
 
-    <!-- Assistant panel: positioned below Continue, alongside other content -->
-    <AssistantPanel
-      assistant={hydrate.assistant}
-      aiSession={hydrate.aiSession}
-      settings={hydrate.settings}
-      taskCandidate={hydrate.taskCandidate}
-      {mode}
-      on:openTransparency={openTransparency}
-      on:acceptTask={(e) => void acceptTask()}
-      on:dismissTask={(e) => void dismissTask()}
-      on:dismissSuggestion={(e) => dismissAssistantSuggestion(e.detail.suggestionId)}
-      on:aiSummaryRequest={() => handleAiSummaryRequest()}
-      on:aiTaskPolishRequest={(e) => handleAiTaskPolishRequest(e.detail.candidateId)}
-    />
+        <!-- Secondary intelligence zone -->
+        <div class="secondary-zone">
+          <AssistantPanel
+            assistant={hydrate.assistant}
+            aiSession={hydrate.aiSession}
+            settings={hydrate.settings}
+            taskCandidate={hydrate.taskCandidate}
+            {mode}
+            on:openTransparency={openTransparency}
+            on:acceptTask={(e) => void acceptTask()}
+            on:dismissTask={(e) => void dismissTask()}
+            on:dismissSuggestion={(e) => dismissAssistantSuggestion(e.detail.suggestionId)}
+            on:aiSummaryRequest={() => handleAiSummaryRequest()}
+            on:aiTaskPolishRequest={(e) => handleAiTaskPolishRequest(e.detail.candidateId)}
+          />
+        </div>
+      </div>
+    </div>
 
+    <!-- Premium shortcuts bar -->
     {#if mode === 'normal' || mode === 'minimal'}
-      <ShortcutsBar />
-    {/if}
-
-    {#if hydrate.taskCandidate && mode === 'normal'}
-      <section class="task card" aria-label="Suggested follow-up">
-        <div>
-          <p class="eyebrow">Optional follow-up</p>
-          <h3 class="t">{hydrate.taskCandidate.titleGuess}</h3>
-          <p class="why">{hydrate.taskCandidate.provenance.evidenceSummary}</p>
-        </div>
-        <div class="row">
-          <button type="button" class="btn primary" on:click={() => void acceptTask()}>Save</button>
-          <button type="button" class="btn ghost" on:click={() => void dismissTask()}>Dismiss</button>
-        </div>
-      </section>
+      <footer class="nexus-footer">
+        <ShortcutsBar />
+      </footer>
     {/if}
 
     {#if gameOpen}
@@ -546,5 +569,246 @@
     .game-modal {
       animation: none;
     }
+  }
+
+  /* Premium NEXUS Design System */
+  .nexus-header {
+    padding: var(--nx-space-8) var(--nx-space-8) var(--nx-space-6);
+    background: linear-gradient(180deg, var(--nx-bg) 0%, var(--nx-bg-surface) 100%);
+    border-bottom: 1px solid var(--nx-line);
+    backdrop-filter: blur(20px);
+  }
+
+  .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--nx-space-8);
+  }
+
+  .brand {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .time-display {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--nx-fg-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: var(--nx-space-1);
+  }
+
+  .greeting {
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--nx-fg);
+    margin: 0 0 var(--nx-space-2);
+  }
+
+  .tagline {
+    font-size: 16px;
+    color: var(--nx-fg-secondary);
+    margin: 0;
+    font-weight: 400;
+  }
+
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--nx-space-4);
+    flex-shrink: 0;
+  }
+
+  .mode-indicator {
+    padding: var(--nx-space-1) var(--nx-space-3);
+    background: var(--nx-accent-subtle);
+    border: 1px solid var(--nx-accent);
+    border-radius: 999px;
+    color: var(--nx-accent);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .control-actions {
+    display: flex;
+    gap: var(--nx-space-2);
+    align-items: center;
+  }
+
+  .control-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--nx-space-1);
+    padding: var(--nx-space-2) var(--nx-space-3);
+    border-radius: var(--nx-radius);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 1px solid var(--nx-line);
+    background: var(--nx-bg-elevated);
+    color: var(--nx-fg);
+  }
+
+  .control-btn:hover {
+    background: var(--nx-accent-subtle);
+    border-color: var(--nx-accent);
+    color: var(--nx-accent);
+    transform: translateY(-1px);
+  }
+
+  .control-btn.subtle {
+    opacity: 0.7;
+  }
+
+  .control-btn.subtle:hover {
+    opacity: 1;
+  }
+
+  .btn-icon {
+    font-size: 16px;
+  }
+
+  /* Premium Layout */
+  .nexus-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--nx-space-8);
+    min-height: calc(100vh - 200px);
+  }
+
+  .nexus-content.minimal {
+    padding: var(--nx-space-4);
+  }
+
+  .nexus-content.focus {
+    padding: var(--nx-space-6);
+  }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: var(--nx-space-8);
+    align-items: start;
+  }
+
+  .nexus-content.minimal .content-grid {
+    grid-template-columns: 1fr;
+    gap: var(--nx-space-4);
+  }
+
+  .nexus-content.focus .content-grid {
+    grid-template-columns: 1fr 320px;
+    gap: var(--nx-space-6);
+  }
+
+  .primary-zone {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nx-space-6);
+  }
+
+  .secondary-zone {
+    position: sticky;
+    top: var(--nx-space-8);
+  }
+
+  .nexus-content.minimal .secondary-zone {
+    position: static;
+  }
+
+  /* Premium Cards */
+  .premium-card {
+    background: var(--nx-bg-elevated);
+    border: 1px solid var(--nx-line);
+    border-radius: var(--nx-radius-lg);
+    box-shadow: var(--nx-shadow);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+
+  .premium-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--nx-shadow-lg);
+    border-color: var(--nx-line-strong);
+  }
+
+  .task-candidate {
+    padding: var(--nx-space-6);
+  }
+
+  .task-content {
+    margin-bottom: var(--nx-space-4);
+  }
+
+  .task-header {
+    display: flex;
+    align-items: center;
+    gap: var(--nx-space-3);
+    margin-bottom: var(--nx-space-3);
+  }
+
+  .task-badge {
+    padding: var(--nx-space-1) var(--nx-space-2);
+    background: var(--nx-accent-subtle);
+    color: var(--nx-accent);
+    border-radius: var(--nx-radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .task-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--nx-fg);
+  }
+
+  .task-description {
+    font-size: 15px;
+    color: var(--nx-fg-secondary);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .task-actions {
+    display: flex;
+    gap: var(--nx-space-2);
+  }
+
+  /* Footer */
+  .nexus-footer {
+    margin-top: var(--nx-space-12);
+    padding: 0 var(--nx-space-8);
+  }
+
+  /* Mode-specific adjustments */
+  .nexus-content.focus .premium-card {
+    border-color: color-mix(in oklab, var(--nx-accent) 20%, transparent);
+  }
+
+  .nexus-content.focus .premium-card:hover {
+    border-color: color-mix(in oklab, var(--nx-accent) 30%, transparent);
+  }
+
+  .nexus-content.minimal .premium-card {
+    border: none;
+    box-shadow: none;
+    background: var(--nx-bg-surface);
+  }
+
+  .nexus-content.minimal .premium-card:hover {
+    transform: none;
+    box-shadow: none;
   }
 </style>
