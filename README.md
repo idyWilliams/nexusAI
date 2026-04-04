@@ -50,9 +50,6 @@ Full text: [docs/NEXUS_CONSTITUTION_v1.1.md](docs/NEXUS_CONSTITUTION_v1.1.md). S
 - **Recovery**: Calm Circles micro-game with explicit exit.
 - **Kill switches**: memory, AI (stubbed), personalization in Settings.
 
-## Cursor: Agent vs Ask vs Plan
-
-In the **chat composer**, use the mode dropdown/pill to pick **Agent** when you want the AI to edit files and run commands. **Ask** is read-only. **Plan** is for design-only iterations. The app cannot switch modes for you automatically.
 
 ## Project layout
 
