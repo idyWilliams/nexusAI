@@ -1,0 +1,69 @@
+:root {
+  color-scheme: light dark;
+  --nx-bg: #0f1114;
+  --nx-bg-elevated: #161a20;
+  --nx-fg: #e8eaef;
+  --nx-fg-muted: #9aa3b2;
+  --nx-accent: #7c9eb2;
+  --nx-line: rgba(255, 255, 255, 0.08);
+  --nx-radius: 14px;
+  --nx-font: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --nx-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+html.light {
+  color-scheme: light;
+  --nx-bg: #f4f2ec;
+  --nx-bg-elevated: #ffffff;
+  --nx-fg: #1a1d22;
+  --nx-fg-muted: #5c6570;
+  --nx-accent: #4a6672;
+  --nx-line: rgba(0, 0, 0, 0.08);
+  --nx-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  font-family: var(--nx-font);
+  background: var(--nx-bg);
+  color: var(--nx-fg);
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: rgba(124, 158, 178, 0.55);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

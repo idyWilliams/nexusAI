@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "NEXUS",
+  "version": "0.1.0",
+  "description": "Calm, work-aware new tab — your browser operating layer.",
+  "background": {
+    "service_worker": "src/background/serviceWorker.ts",
+    "type": "module"
+  },
+  "chrome_url_overrides": {
+    "newtab": "src/newtab/index.html"
+  },
+  "permissions": ["storage", "alarms"],
+  "optional_permissions": ["tabs", "notifications"]
+}
