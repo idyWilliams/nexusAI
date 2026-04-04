@@ -34,6 +34,19 @@ Use after `npm run build` and loading **unpacked** from `dist/`. Chrome or Chrom
 - [ ] **Empty states** — Helpful copy when no context or suggestions available.
 - [ ] **Keyboard navigation** — Tab through suggestions; Enter to activate; Escape still works for settings/game.
 
+## AI features (disabled by default)
+
+- [ ] **AI toggle** — AI features are OFF by default; Settings shows clear toggle.
+- [ ] **Feature toggles** — Individual controls for "AI summaries" and "Task polish".
+- [ ] **Mock behavior** — With mock provider, AI features work without real API calls.
+- [ ] **"Explain what I was doing"** — Button appears when AI summaries enabled; generates context summary.
+- [ ] **AI-assisted badge** — Shows "(AI-assisted)" indicator on AI-generated content.
+- [ ] **Task polish** — "Improve wording" button appears for task candidates when enabled.
+- [ ] **Loading states** — Shows loading spinner during AI requests; other UI remains interactive.
+- [ ] **Error handling** — Graceful fallback to local behavior when AI fails.
+- [ ] **Rate limiting** — After 3 requests, shows "try again later" message.
+- [ ] **Data privacy** — No full URLs or page content sent to AI (verify with mock logs).
+
 ## Mode spot-checks
 
 | Mode    | Continue | Shortcuts | Task card | Recovery entry        |

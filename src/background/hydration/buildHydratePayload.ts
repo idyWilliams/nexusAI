@@ -1,16 +1,20 @@
 import type { HydratePayload } from '$lib/types/messages'
-import type { TaskCandidate } from '$lib/types/tasks'
+import { computeAssistantViewModel } from '$lib/engines/assistantViewModel'
 import {
+  getAiSession,
   getAssistantDismissals,
   getDismissalState,
-  getRecoveryMeta,
   getSessionState,
   getSettings,
-  getTaskInferenceMeta
+  getRecoveryMeta,
+  getTaskInferenceMeta,
+  getWorkPatternState
 } from '$lib/storage'
-import { WorkPatternEngine, routeContinueSuggestions, maybeGenerateTaskCandidate } from '$lib/engines'
+import type { WorkPatternEngine } from '$lib/engines/workPatternEngine'
+import type { TaskCandidate } from '$lib/types/tasks'
+import type { WorkPatternState } from '$lib/types/workPattern'
+import { routeContinueSuggestions, maybeGenerateTaskCandidate } from '$lib/engines'
 import { computeContinueEmptyReason } from '$lib/engines/continueEmptyReason'
-import { computeAssistantViewModel } from '$lib/engines/assistantViewModel'
 import { hasTabsPermission } from '../activityObserver'
 
 export { computeContinueEmptyReason } from '$lib/engines/continueEmptyReason'
@@ -78,6 +82,7 @@ export async function buildHydratePayload(workEngine: WorkPatternEngine): Promis
     continueEmptyReason,
     transparencyTopDomains,
     recoveryLastPlayedAt: recovery.lastPlayedAt,
-    assistant
+    assistant,
+    aiSession: await getAiSession()
   }
 }

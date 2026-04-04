@@ -36,6 +36,10 @@ export function sanitizeSettings(raw: unknown): Settings {
     mode: isMode(o.mode) ? o.mode : DEFAULT_SETTINGS.mode,
     memoryLevel: isMemory(o.memoryLevel) ? o.memoryLevel : DEFAULT_SETTINGS.memoryLevel,
     aiEnabled: typeof o.aiEnabled === 'boolean' ? o.aiEnabled : DEFAULT_SETTINGS.aiEnabled,
+    aiFeatures: {
+      summaries: typeof o.aiFeatures?.summaries === 'boolean' ? o.aiFeatures.summaries : DEFAULT_SETTINGS.aiFeatures.summaries,
+      taskPolish: typeof o.aiFeatures?.taskPolish === 'boolean' ? o.aiFeatures.taskPolish : DEFAULT_SETTINGS.aiFeatures.taskPolish
+    },
     personalizationEnabled:
       typeof o.personalizationEnabled === 'boolean'
         ? o.personalizationEnabled

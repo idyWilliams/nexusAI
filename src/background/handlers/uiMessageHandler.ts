@@ -2,12 +2,14 @@ import type { HydratePayload } from '$lib/types/messages'
 import type { UiToBackgroundMessage } from '$lib/types/messages'
 import {
   addStoredTask,
+  getAiSession,
   getAssistantDismissals,
   getDismissalState,
   getSessionState,
   getSettings,
   getTaskInferenceMeta,
   patchSettings,
+  setAiSession,
   setAssistantDismissals,
   setDismissalState,
   setRecoveryMeta,
@@ -19,6 +21,9 @@ import type { WorkPatternEngine } from '$lib/engines/workPatternEngine'
 import { buildHydratePayload } from '../hydration/buildHydratePayload'
 import { removeOptionalPermission } from '$lib/permissions/chromePermissions'
 import { requestTabsPermission } from '../activityObserver'
+import { createAiClient } from '$lib/ai'
+import { buildWorkSummaryInput, buildTaskPolishInput } from '$lib/ai/builders'
+import type { AssistantEngineInput } from '$lib/types/assistant'
 
 function dismissSuggestionKey(
   dismissals: DismissalState,
@@ -34,6 +39,154 @@ function dismissSuggestionKey(
         neverAgain: payload.neverAgain === true
       }
     }
+  }
+}
+
+async function handleAiSummaryRequest(workEngine: WorkPatternEngine): Promise<HydratePayload> {
+  try {
+    const settings = await getSettings()
+    if (!settings.aiEnabled || !settings.aiFeatures.summaries) {
+      return buildHydratePayload(workEngine)
+    }
+
+    const session = await getAiSession()
+    const requestLimit = parseInt(import.meta.env.VITE_NEXUS_AI_REQUEST_LIMIT || '3')
+    
+    if (session.requestCount >= requestLimit) {
+      await setAiSession({
+        ...session,
+        lastError: 'Request limit reached. Try again later.'
+      })
+      return buildHydratePayload(workEngine)
+    }
+
+    // Update session state to loading
+    await setAiSession({
+      ...session,
+      summary: 'loading',
+      requestCount: session.requestCount + 1
+    })
+
+    const hydrate = await buildHydratePayload(workEngine)
+    
+    // Build the assistant engine input from hydrate data
+    const assistantInput: AssistantEngineInput = {
+      mode: hydrate.settings.mode,
+      patternSummaries: hydrate.patternSummaries,
+      transparencyTopDomains: hydrate.transparencyTopDomains,
+      suggestions: hydrate.suggestions,
+      taskCandidate: hydrate.taskCandidate,
+      continueEmptyReason: hydrate.continueEmptyReason,
+      assistantDismissals: await getAssistantDismissals(),
+      now: Date.now()
+    }
+    
+    const aiInput = buildWorkSummaryInput(assistantInput, hydrate.settings)
+    
+    const aiClient = createAiClient()
+    const summary = await aiClient.summarizeWorkContext(aiInput)
+    
+    // Update session state with success
+    await setAiSession({
+      ...session,
+      summary: 'success',
+      lastError: null
+    })
+
+    // Return enriched hydrate payload
+    return {
+      ...hydrate,
+      assistant: {
+        ...hydrate.assistant,
+        lastContextSummary: [summary],
+        previewLine: `${hydrate.assistant.previewLine} (AI-assisted)`
+      }
+    }
+  } catch (error) {
+    const session = await getAiSession()
+    await setAiSession({
+      ...session,
+      summary: 'error',
+      lastError: error instanceof Error ? error.message : 'Unknown error'
+    })
+    return buildHydratePayload(workEngine)
+  }
+}
+
+async function handleAiTaskPolishRequest(workEngine: WorkPatternEngine, candidateId: string): Promise<HydratePayload> {
+  try {
+    const settings = await getSettings()
+    if (!settings.aiEnabled || !settings.aiFeatures.taskPolish) {
+      return buildHydratePayload(workEngine)
+    }
+
+    const session = await getAiSession()
+    const requestLimit = parseInt(import.meta.env.VITE_NEXUS_AI_REQUEST_LIMIT || '3')
+    
+    if (session.requestCount >= requestLimit) {
+      await setAiSession({
+        ...session,
+        lastError: 'Request limit reached. Try again later.'
+      })
+      return buildHydratePayload(workEngine)
+    }
+
+    // Update session state to loading
+    await setAiSession({
+      ...session,
+      taskPolish: 'loading',
+      requestCount: session.requestCount + 1
+    })
+
+    const hydrate = await buildHydratePayload(workEngine)
+    const taskCandidate = hydrate.taskCandidate
+    
+    if (!taskCandidate || taskCandidate.id !== candidateId) {
+      await setAiSession({
+        ...session,
+        taskPolish: 'error',
+        lastError: 'Task candidate not found'
+      })
+      return buildHydratePayload(workEngine)
+    }
+
+    const aiInput = buildTaskPolishInput(
+      taskCandidate.titleGuess,
+      taskCandidate.provenance.evidenceSummary,
+      hydrate.transparencyTopDomains.slice(0, 3).map(d => d.domain),
+      hydrate.patternSummaries
+    )
+    
+    const aiClient = createAiClient()
+    const polished = await aiClient.polishTask(aiInput)
+    
+    // Update session state with success
+    await setAiSession({
+      ...session,
+      taskPolish: 'success',
+      lastError: null
+    })
+
+    // Return enriched hydrate payload with polished task
+    return {
+      ...hydrate,
+      taskCandidate: {
+        ...taskCandidate,
+        titleGuess: polished.title,
+        provenance: {
+          ...taskCandidate.provenance,
+          evidenceSummary: polished.description
+        }
+      }
+    }
+  } catch (error) {
+    const session = await getAiSession()
+    await setAiSession({
+      ...session,
+      taskPolish: 'error',
+      lastError: error instanceof Error ? error.message : 'Unknown error'
+    })
+    return buildHydratePayload(workEngine)
   }
 }
 
@@ -151,6 +304,12 @@ export function createUiMessageHandler(deps: {
           }
         })
         return buildHydratePayload(workEngine)
+      }
+      case 'AI_SUMMARIZE_REQUEST': {
+        return await handleAiSummaryRequest(workEngine)
+      }
+      case 'AI_POLISH_TASK_REQUEST': {
+        return await handleAiTaskPolishRequest(workEngine, message.candidateId)
       }
       default: {
         const _exhaustive: never = message

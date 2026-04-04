@@ -2,13 +2,17 @@ export type Mode = 'normal' | 'focus' | 'minimal'
 
 export type MemoryLevel = 'off' | 'light' | 'full'
 
+export type AiFeature = 'summaries' | 'taskPolish'
+
 /** User-facing settings persisted locally (subset may sync later). */
 export interface Settings {
   schemaVersion: number
   mode: Mode
   memoryLevel: MemoryLevel
-  /** Master toggles — AI is stubbed but wiring exists */
+  /** Master toggle for AI features */
   aiEnabled: boolean
+  /** Granular AI feature controls */
+  aiFeatures: Record<AiFeature, boolean>
   personalizationEnabled: boolean
   /** User wants activity-based signals; may trigger optional `tabs` permission */
   activityAwarenessEnabled: boolean
@@ -21,6 +25,10 @@ export const DEFAULT_SETTINGS: Settings = {
   mode: 'normal',
   memoryLevel: 'light',
   aiEnabled: false,
+  aiFeatures: {
+    summaries: false,
+    taskPolish: false
+  },
   personalizationEnabled: true,
   activityAwarenessEnabled: false,
   density: 'compact',

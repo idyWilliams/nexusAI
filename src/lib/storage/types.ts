@@ -38,3 +38,22 @@ export const DEFAULT_ASSISTANT_DISMISSALS: AssistantDismissalsState = {
   schemaVersion: 1,
   entries: {}
 }
+
+/** AI session state for tracking ongoing requests */
+export interface AiSessionState {
+  schemaVersion: number
+  summary: 'idle' | 'loading' | 'success' | 'error'
+  taskPolish: 'idle' | 'loading' | 'success' | 'error'
+  lastError: string | null
+  requestCount: number
+  sessionStart: number
+}
+
+export const DEFAULT_AI_SESSION: AiSessionState = {
+  schemaVersion: 1,
+  summary: 'idle',
+  taskPolish: 'idle',
+  lastError: null,
+  requestCount: 0,
+  sessionStart: Date.now()
+}

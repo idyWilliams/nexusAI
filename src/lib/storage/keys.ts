@@ -7,7 +7,8 @@ export const STORAGE_KEYS = {
   taskInference: 'nexus_task_inference_meta_v1',
   tasks: 'nexus_tasks_v1',
   recovery: 'nexus_recovery_meta_v1',
-  assistantDismissals: 'nexus_assistant_dismissals_v1'
+  assistantDismissals: 'nexus_assistant_dismissals_v1',
+  aiSession: 'nexus_ai_session_v1'
 } as const
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]

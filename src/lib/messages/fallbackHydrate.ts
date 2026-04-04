@@ -2,6 +2,7 @@ import type { HydratePayload } from '$lib/types/messages'
 import { DEFAULT_SETTINGS } from '$lib/types/settings'
 import { DEFAULT_SESSION } from '$lib/types/session'
 import { sanitizeSettings, sanitizeSession } from '$lib/storage/sanitize'
+import { DEFAULT_AI_SESSION } from '$lib/storage/types'
 
 function fallbackAssistant(): HydratePayload['assistant'] {
   return {
@@ -23,7 +24,8 @@ function baseFallback(patternSummaries: string[]): HydratePayload {
     continueEmptyReason: 'filtered',
     transparencyTopDomains: [],
     recoveryLastPlayedAt: null,
-    assistant: fallbackAssistant()
+    assistant: fallbackAssistant(),
+    aiSession: DEFAULT_AI_SESSION
   }
 }
 

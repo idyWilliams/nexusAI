@@ -115,6 +115,12 @@ export function validateHydratePayload(raw: unknown): HydratePayload | null {
 
   if (!isAssistantViewModel(o.assistant)) return null
 
+  // Validate aiSession (optional for backward compatibility)
+  const aiSession = o.aiSession && typeof o.aiSession === 'object' && 
+    'summary' in o.aiSession && 'taskPolish' in o.aiSession && 'lastError' in o.aiSession
+    ? o.aiSession as { summary: string; taskPolish: string; lastError: string | null }
+    : { summary: 'idle', taskPolish: 'idle', lastError: null }
+
   return {
     settings,
     session,
@@ -125,6 +131,7 @@ export function validateHydratePayload(raw: unknown): HydratePayload | null {
     continueEmptyReason: cer as HydratePayload['continueEmptyReason'],
     transparencyTopDomains: o.transparencyTopDomains as HydratePayload['transparencyTopDomains'],
     recoveryLastPlayedAt: rlp as number | null,
-    assistant: o.assistant as AssistantViewModel
+    assistant: o.assistant as AssistantViewModel,
+    aiSession: aiSession as any
   }
 }

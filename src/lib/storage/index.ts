@@ -14,14 +14,17 @@ import {
   DEFAULT_DISMISSALS,
   DEFAULT_RECOVERY,
   DEFAULT_TASK_INFERENCE_META,
+  DEFAULT_ASSISTANT_DISMISSALS,
+  DEFAULT_AI_SESSION,
   type AssistantDismissalsState,
   type DismissalState,
   type RecoveryMeta,
-  type TaskInferenceMeta
+  type TaskInferenceMeta,
+  type AiSessionState
 } from './types'
 import { STORAGE_KEYS } from './keys'
 
-export type { AssistantDismissalsState, DismissalState, TaskInferenceMeta, RecoveryMeta }
+export type { AssistantDismissalsState, DismissalState, TaskInferenceMeta, RecoveryMeta, AiSessionState }
 export { STORAGE_KEYS }
 
 export interface StoredUserTask {
@@ -111,6 +114,24 @@ export async function getAssistantDismissals(): Promise<AssistantDismissalsState
 
 export async function setAssistantDismissals(next: AssistantDismissalsState): Promise<void> {
   await chrome.storage.local.set({ [STORAGE_KEYS.assistantDismissals]: next })
+}
+
+export async function getAiSession(): Promise<AiSessionState> {
+  const data = await chrome.storage.local.get(STORAGE_KEYS.aiSession)
+  const merged = { ...DEFAULT_AI_SESSION, ...data[STORAGE_KEYS.aiSession] }
+  
+  // Reset request count if session is older than 30 minutes
+  const sessionAge = Date.now() - merged.sessionStart
+  if (sessionAge > 30 * 60 * 1000) {
+    merged.requestCount = 0
+    merged.sessionStart = Date.now()
+  }
+  
+  return merged
+}
+
+export async function setAiSession(next: AiSessionState): Promise<void> {
+  await chrome.storage.local.set({ [STORAGE_KEYS.aiSession]: next })
 }
 
 /** Fallback hydrate when reads fail — keeps UI consistent with constitution defaults */

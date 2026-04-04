@@ -4,7 +4,8 @@ import { BUILD_ID } from '$lib/types/messages'
 import { WorkPatternEngine } from '$lib/engines/workPatternEngine'
 import { attachActivityObserver, hasTabsPermission } from './activityObserver'
 import { createUiMessageHandler } from './handlers/uiMessageHandler'
-import { getFallbackSessionForError, getFallbackSettingsForError, getSettings } from '$lib/storage'
+import { getFallbackSettingsForError, getFallbackSessionForError } from '$lib/storage'
+import { DEFAULT_AI_SESSION } from '$lib/storage/types'
 import { parseUiToBackgroundMessage, looksLikeNexusUiMessage } from '$lib/messages/parseUiMessage'
 import { createInvalidPayloadHydrate } from '$lib/messages/fallbackHydrate'
 
@@ -15,7 +16,7 @@ function reconnectObserver(): void {
   detachObserver?.()
   detachObserver = null
   void (async () => {
-    const settings = await getSettings()
+    const settings = await getFallbackSettingsForError()
     if (!settings.activityAwarenessEnabled) return
     const ok = await hasTabsPermission()
     if (!ok) return
@@ -68,7 +69,8 @@ chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse: (
           lastContextSummary: ['Something went wrong loading NEXUS state.'],
           suggestions: [],
           previewLine: 'Error loading assistant'
-        }
+        },
+        aiSession: DEFAULT_AI_SESSION
       } satisfies HydratePayload)
     })
   return true
