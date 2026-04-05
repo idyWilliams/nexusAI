@@ -88,20 +88,15 @@
   }
 
   .command-surface {
-    background: linear-gradient(145deg, var(--nx-bg-elevated) 0%, color-mix(in oklab, var(--nx-accent) 3%, var(--nx-bg-elevated)) 100%);
-    border: 1px solid color-mix(in oklab, var(--nx-accent) 12%, transparent);
-    box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.35),
-      inset 0 1px 0 rgba(255, 255, 255, 0.03);
-    transform: scale(1.02);
+    background: var(--nx-bg-elevated);
+    border: 1px solid var(--nx-line);
+    box-shadow: var(--nx-shadow-lg);
   }
 
   .command-surface:hover {
-    transform: scale(1.03) translateY(-2px);
-    box-shadow: 
-      0 16px 48px rgba(0, 0, 0, 0.45),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    border-color: color-mix(in oklab, var(--nx-accent) 20%, transparent);
+    transform: translateY(-2px);
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.4);
+    border-color: var(--nx-line-strong);
   }
 
   .empty-surface {
@@ -116,13 +111,11 @@
     opacity: 0.9;
   }
 
-  /* Command Header - System Panel Top */
   .command-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: var(--nx-space-4) var(--nx-space-6);
-    background: linear-gradient(180deg, color-mix(in oklab, var(--nx-accent) 8%, transparent) 0%, transparent 100%);
     border-bottom: 1px solid var(--nx-line);
   }
 
@@ -138,8 +131,8 @@
     align-items: center;
     gap: var(--nx-space-2);
     padding: var(--nx-space-1) var(--nx-space-3);
-    background: var(--nx-accent);
-    color: white;
+    background: color-mix(in oklab, var(--nx-accent) 12%, transparent);
+    color: var(--nx-accent);
     border-radius: var(--nx-radius);
     font-size: 11px;
     font-weight: 600;
@@ -234,39 +227,21 @@
     align-items: center;
     justify-content: center;
     gap: var(--nx-space-3);
-    padding: var(--nx-space-4) var(--nx-space-8);
+    padding: var(--nx-space-3) var(--nx-space-6);
     background: var(--nx-accent);
     color: white;
-    border-radius: var(--nx-radius);
-    font-size: 18px;
+    border-radius: 999px; /* extremely rounded like pill */
+    font-size: 16px;
     font-weight: 600;
     text-decoration: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 2px solid var(--nx-accent);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .command-trigger::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    transition: left 0.5s ease;
-  }
-
-  .command-trigger:hover::before {
-    left: 100%;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 12px color-mix(in oklab, var(--nx-accent) 30%, transparent);
   }
 
   .command-trigger:hover {
     background: var(--nx-accent-hover);
-    border-color: var(--nx-accent-hover);
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(74, 124, 158, 0.4);
+    box-shadow: 0 8px 24px color-mix(in oklab, var(--nx-accent) 40%, transparent);
   }
 
   .trigger-text {

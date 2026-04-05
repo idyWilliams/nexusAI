@@ -224,11 +224,10 @@
 
 <style>
   .assistant-panel {
-    background: var(--nx-bg-elevated);
-    border: 1px solid var(--nx-line);
+    background: transparent;
+    border: 1px solid transparent;
     border-radius: var(--nx-radius);
-    margin-top: 1rem;
-    box-shadow: var(--nx-shadow);
+    margin-top: 0.5rem;
   }
 
   .assistant-panel.minimal {
@@ -289,9 +288,10 @@
   }
 
   .preview-text {
-    font-size: 0.9rem;
-    color: var(--nx-fg);
+    font-size: 13px;
+    color: var(--nx-fg-muted);
     flex: 1;
+    font-weight: 500;
   }
 
   .expand-toggle {
@@ -319,9 +319,9 @@
 
   .summary-line {
     margin: 0 0 0.5rem;
-    font-size: 0.85rem;
+    font-size: 13px;
     color: var(--nx-fg-muted);
-    line-height: 1.4;
+    line-height: 1.45;
   }
 
   .summary-line:last-child {
@@ -363,15 +363,15 @@
   }
 
   .suggestion-label {
-    font-size: 0.9rem;
+    font-size: 13px;
     font-weight: 500;
     color: var(--nx-fg);
   }
 
   .suggestion-description {
-    font-size: 0.8rem;
+    font-size: 12px;
     color: var(--nx-fg-muted);
-    line-height: 1.3;
+    line-height: 1.35;
   }
 
   .dismiss-btn {
@@ -437,8 +437,8 @@
   .ai-summary-section {
     margin: 1rem 0;
     padding: 0.75rem;
-    background: color-mix(in oklab, var(--nx-accent) 2%, transparent);
-    border: 1px solid color-mix(in oklab, var(--nx-accent) 10%, transparent);
+    background: transparent;
+    border: 1px dotted var(--nx-line);
     border-radius: var(--nx-radius);
   }
 
@@ -518,8 +518,8 @@
   }
 
   .ai-polished-task {
-    background: color-mix(in oklab, var(--nx-accent) 3%, transparent);
-    border: 1px solid color-mix(in oklab, var(--nx-accent) 15%, transparent);
+    background: transparent;
+    border: 1px dashed var(--nx-line);
     border-radius: var(--nx-radius);
     padding: 1rem;
   }

@@ -102,11 +102,9 @@
 
 <style>
   .thread-card {
-    background: var(--nx-bg-elevated);
-    border: 1px solid var(--nx-line);
-    border-radius: var(--nx-radius-lg);
-    padding: var(--nx-space-5);
-    box-shadow: var(--nx-shadow);
+    background: transparent;
+    border: none;
+    padding: var(--nx-space-6) 0;
   }
   .thread-header {
     display: flex;
@@ -126,9 +124,10 @@
     color: var(--nx-fg-muted);
   }
   .thread-title {
-    margin: 0 0 var(--nx-space-1);
-    font-size: 1.15rem;
+    margin: 0 0 calc(var(--nx-space-1) + 2px);
+    font-size: 1.25rem;
     font-weight: 600;
+    letter-spacing: -0.01em;
     color: var(--nx-fg);
   }
   .thread-meta {
@@ -161,18 +160,22 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    opacity: 0.9;
+    transition: color 0.2s ease, opacity 0.2s ease;
   }
   .thread-pages a:hover {
     color: var(--nx-accent);
-    text-decoration: underline;
+    opacity: 1;
   }
   .domain {
     font-size: 12px;
     color: var(--nx-fg-muted);
+    opacity: 0.6;
     max-width: 120px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    justify-self: end;
   }
   .more {
     margin: var(--nx-space-3) 0 0;
@@ -220,14 +223,14 @@
     color: #ef4444;
   }
   .btn {
-    padding: var(--nx-space-2) var(--nx-space-4);
-    border-radius: var(--nx-radius);
+    padding: var(--nx-space-2) var(--nx-space-5);
+    border-radius: 999px;
     font-family: inherit;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     border: none;
-    transition: all 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .btn:disabled {
     opacity: 0.5;
@@ -236,15 +239,22 @@
   .btn-primary {
     background: var(--nx-accent);
     color: #fff;
+    box-shadow: 0 4px 12px color-mix(in oklab, var(--nx-accent) 20%, transparent);
   }
   .btn-primary:hover:not(:disabled) {
-    background: color-mix(in oklab, var(--nx-accent) 90%, black);
+    background: var(--nx-accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px color-mix(in oklab, var(--nx-accent) 30%, transparent);
   }
   .btn-ghost {
     background: transparent;
-    color: var(--nx-fg);
+    color: var(--nx-fg-muted);
+    border: 1px dashed var(--nx-line);
   }
   .btn-ghost:hover:not(:disabled) {
-    background: var(--nx-bg-surface);
+    background: transparent;
+    border-style: solid;
+    border-color: var(--nx-accent-subtle);
+    color: var(--nx-fg);
   }
 </style>

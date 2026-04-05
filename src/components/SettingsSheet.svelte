@@ -277,9 +277,20 @@
     border: none;
     background: transparent;
     color: var(--nx-fg-muted);
-    font-size: 1.4rem;
+    font-size: 1.45rem;
     line-height: 1;
-    padding: 0.1rem 0.35rem;
+    padding: 0.25rem 0.35rem;
+    border-radius: var(--nx-radius-sm);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .icon-btn:hover {
+    color: var(--nx-fg);
+    background: color-mix(in oklab, var(--nx-fg) 5%, transparent);
+  }
+  .icon-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--nx-accent-subtle);
   }
   .tabs {
     display: flex;
@@ -318,20 +329,26 @@
     color: var(--nx-fg-muted);
   }
   .select {
-    border-radius: 10px;
+    border-radius: 8px;
     border: 1px solid var(--nx-line);
     padding: 0.45rem 0.55rem;
     background: transparent;
     color: var(--nx-fg);
+    transition: all 0.2s ease;
+  }
+  .select:focus-visible {
+    outline: none;
+    border-color: var(--nx-accent);
+    box-shadow: 0 0 0 2px var(--nx-accent-subtle);
   }
   .callout {
-    padding: 0.65rem 0.75rem;
-    border-radius: 12px;
-    border: 1px solid var(--nx-line);
-    background: rgba(255, 255, 255, 0.02);
+    padding: 0.75rem 0.85rem;
+    border-radius: var(--nx-radius);
+    border: none;
+    background: color-mix(in oklab, var(--nx-line) 50%, transparent);
   }
   :global(html.light) .callout {
-    background: rgba(0, 0, 0, 0.02);
+    background: color-mix(in oklab, var(--nx-line) 80%, transparent);
   }
   .callout-title {
     margin: 0 0 0.35rem;
@@ -393,6 +410,10 @@
   }
   .nx-switch-on {
     background: var(--nx-accent);
+  }
+  .nx-switch:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--nx-accent-subtle);
   }
   .nx-switch-loading {
     animation: nxPulse 1.5s infinite;

@@ -90,17 +90,25 @@
   }
   .command-input {
     width: 100%;
-    padding: 12px 72px 12px 14px;
-    border-radius: 12px;
+    padding: 16px 72px 16px 20px;
+    border-radius: var(--nx-radius-lg);
     border: 1px solid var(--nx-line);
-    background: var(--nx-bg);
+    background: var(--nx-bg-elevated);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* very subtle native lift */
     color: var(--nx-fg);
-    font-size: 15px;
+    font-size: 16px;
+    font-family: var(--nx-font-primary);
     outline: none;
-    transition: border-color 0.15s ease;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .command-input::placeholder {
+    color: var(--nx-fg-muted);
+    font-weight: 400;
   }
   .command-input:focus {
     border-color: var(--nx-accent);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1), 0 0 0 2px var(--nx-accent-subtle);
+    transform: translateY(-1px);
   }
   .command-input:disabled {
     opacity: 0.55;
@@ -121,19 +129,21 @@
     max-height: 280px;
     overflow-y: auto;
     border: 1px solid var(--nx-line);
-    border-radius: 12px;
+    border-radius: var(--nx-radius-lg);
     background: var(--nx-bg-elevated);
+    box-shadow: var(--nx-shadow-sm);
   }
   .hit {
     display: grid;
-    grid-template-columns: 28px 1fr auto;
-    gap: var(--nx-space-2);
+    grid-template-columns: 24px 1fr auto;
+    gap: var(--nx-space-3);
     align-items: start;
-    padding: var(--nx-space-3);
-    border-bottom: 1px solid var(--nx-line);
+    padding: var(--nx-space-3) var(--nx-space-4);
+    border-bottom: 1px solid transparent; /* removing hard borders */
+    transition: background 0.2s ease;
   }
-  .hit:last-child {
-    border-bottom: none;
+  .hit:not(:last-child) {
+    border-bottom-color: var(--nx-line);
   }
   .favicon {
     margin-top: 2px;

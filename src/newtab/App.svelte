@@ -198,7 +198,7 @@
     <div class="sk sk-card" />
   </main>
 {:else}
-  <main class="page shell" aria-label="NEXUS new tab">
+  <main class="page shell" aria-label="NEXUS new tab" class:minimal={mode === 'minimal'} class:focus={mode === 'focus'}>
     <header class="nexus-header">
       <div class="header-content">
         <div class="brand">
@@ -474,22 +474,10 @@
 
   /* Premium NEXUS Design System */
   .nexus-header {
-    padding: var(--nx-space-12) var(--nx-space-8) var(--nx-space-8);
-    background: linear-gradient(180deg, var(--nx-bg) 0%, var(--nx-bg-surface) 100%);
-    border-bottom: 1px solid var(--nx-line);
-    backdrop-filter: blur(20px);
+    padding: var(--nx-space-12) var(--nx-space-8) var(--nx-space-4);
+    background: transparent;
     position: relative;
-  }
-
-  .nexus-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--nx-line-strong), transparent);
-    opacity: 0.5;
+    z-index: 10;
   }
 
   .header-content {
@@ -525,10 +513,11 @@
   }
 
   .tagline {
-    font-size: 16px;
-    color: var(--nx-fg-secondary);
+    font-size: 15px;
+    color: var(--nx-fg-muted);
     margin: 0;
     font-weight: 400;
+    opacity: 0.85;
   }
 
   .header-controls {
@@ -559,23 +548,24 @@
   .control-btn {
     display: flex;
     align-items: center;
-    gap: var(--nx-space-1);
-    padding: var(--nx-space-2) var(--nx-space-3);
-    border-radius: var(--nx-radius);
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s ease;
+    gap: var(--nx-space-2);
+    padding: var(--nx-space-2) var(--nx-space-4);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: pointer;
-    border: 1px solid var(--nx-line);
+    border: none;
     background: var(--nx-bg-elevated);
-    color: var(--nx-fg);
+    color: var(--nx-fg-secondary);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* very soft lift */
   }
 
   .control-btn:hover {
-    background: var(--nx-accent-subtle);
-    border-color: var(--nx-accent);
-    color: var(--nx-accent);
+    background: var(--nx-bg-floating);
+    color: var(--nx-fg);
     transform: translateY(-1px);
+    box-shadow: var(--nx-shadow-sm);
   }
 
   .control-btn.subtle {
@@ -594,21 +584,9 @@
   .nexus-content {
     max-width: 1200px;
     margin: 0 auto;
-    padding: var(--nx-space-12) var(--nx-space-8);
+    padding: var(--nx-space-6) var(--nx-space-8) var(--nx-space-12);
     min-height: calc(100vh - 200px);
     position: relative;
-  }
-
-  .nexus-content::before {
-    content: '';
-    position: absolute;
-    top: -var(--nx-space-8);
-    left: 50%;
-    transform: translateX(-50%);
-    width: 2px;
-    height: var(--nx-space-4);
-    background: linear-gradient(180deg, var(--nx-accent), transparent);
-    opacity: 0.3;
   }
 
   .nexus-content.minimal {
@@ -664,7 +642,6 @@
   .premium-card:hover {
     transform: translateY(-4px);
     box-shadow: var(--nx-shadow-lg);
-    border-color: var(--nx-line-strong);
   }
 
   .task-candidate {
@@ -719,7 +696,7 @@
   }
 
   /* Mode-specific adjustments */
-  .nexus-content.focus .command-surface {
+  .shell.focus :global(.command-surface) {
     transform: scale(1.04);
     border-color: color-mix(in oklab, var(--nx-accent) 25%, transparent);
     box-shadow: 
@@ -727,91 +704,89 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 
-  .nexus-content.focus .command-surface:hover {
+  .shell.focus :global(.command-surface:hover) {
     transform: scale(1.05) translateY(-3px);
     box-shadow: 
       0 20px 60px rgba(0, 0, 0, 0.5),
       inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 
-  .nexus-content.focus .premium-card {
+  .shell.focus .premium-card {
     opacity: 0.7;
     transform: scale(0.98);
   }
 
-  .nexus-content.focus .premium-card:hover {
+  .shell.focus .premium-card:hover {
     opacity: 0.9;
     transform: scale(0.99);
   }
 
-  .nexus-content.minimal {
+  .shell.minimal .nexus-content {
     background: radial-gradient(ellipse at center, var(--nx-bg) 0%, var(--nx-bg-surface) 100%);
   }
 
-  .nexus-content.minimal .command-surface {
+  .shell.minimal :global(.command-surface) {
     transform: scale(1.06);
     border-color: color-mix(in oklab, var(--nx-accent) 30%, transparent);
     box-shadow: 
-      0 16px 48px rgba(0, 0, 0, 0.45),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      0 16px 48px rgba(0, 0, 0, 0.45);
   }
 
-  .nexus-content.minimal .command-surface:hover {
+  .shell.minimal :global(.command-surface:hover) {
     transform: scale(1.07) translateY(-4px);
     box-shadow: 
       0 24px 64px rgba(0, 0, 0, 0.55),
       inset 0 1px 0 rgba(255, 255, 255, 0.07);
   }
 
-  .nexus-content.minimal .premium-card {
+  .shell.minimal .premium-card {
     display: none;
   }
 
-  .nexus-content.minimal .nexus-footer {
+  .shell.minimal .nexus-footer {
     opacity: 0.5;
   }
 
   /* Header mode variations */
-  .nexus-content.minimal .nexus-header {
-    background: linear-gradient(180deg, var(--nx-bg) 0%, color-mix(in oklab, var(--nx-accent) 2%, var(--nx-bg-surface)) 100%);
-    border-bottom: none;
+  .shell.minimal .nexus-header {
+    background: transparent;
   }
 
-  .nexus-content.focus .nexus-header {
-    background: linear-gradient(180deg, var(--nx-bg) 0%, color-mix(in oklab, var(--nx-accent) 1%, var(--nx-bg-surface)) 100%);
+  .shell.focus .nexus-header {
+    background: transparent;
   }
 
   /* Control button mode variations */
-  .nexus-content.focus .control-btn {
+  .shell.focus .control-btn {
     opacity: 0.6;
   }
 
-  .nexus-content.focus .control-btn:hover {
+  .shell.focus .control-btn:hover {
     opacity: 1;
   }
 
-  .nexus-content.minimal .control-btn:not(.settings-btn) {
+  .shell.minimal .control-btn:not(.settings-btn) {
     display: none;
   }
 
-  .nexus-content.minimal .mode-indicator {
+  .shell.minimal .mode-indicator {
     display: none;
   }
 
   /* Greeting mode variations */
-  .nexus-content.focus .greeting {
+  .shell.focus .greeting {
     font-size: clamp(24px, 3.5vw, 42px);
   }
 
-  .nexus-content.minimal .greeting {
+  .shell.minimal .greeting {
     font-size: clamp(32px, 4.5vw, 56px);
   }
 
-  .nexus-content.focus .tagline {
+  .shell.focus .tagline {
     display: none;
   }
 
-  .nexus-content.minimal .tagline {
+  .shell.minimal .tagline {
     display: none;
   }
 </style>
