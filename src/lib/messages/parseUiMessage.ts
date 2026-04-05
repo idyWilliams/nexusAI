@@ -8,7 +8,6 @@ const KNOWN_TYPES = new Set<string>([
   'USER_DISMISS',
   'MODE_SET',
   'SETTINGS_PATCH',
-  'REQUEST_TABS_PERMISSION',
   'TASK_CANDIDATE_ACCEPT',
   'TASK_CANDIDATE_DISMISS',
   'CLEAR_WORK_PATTERNS',
@@ -68,8 +67,6 @@ export function parseUiToBackgroundMessage(raw: unknown): UiToBackgroundMessage 
       if (patch === null) return null
       return { type: 'SETTINGS_PATCH', payload: patch }
     }
-    case 'REQUEST_TABS_PERMISSION':
-      return { type: 'REQUEST_TABS_PERMISSION' }
     case 'TASK_CANDIDATE_ACCEPT': {
       if (!isRecord(raw.payload) || typeof raw.payload.candidateId !== 'string' || !raw.payload.candidateId) {
         return null

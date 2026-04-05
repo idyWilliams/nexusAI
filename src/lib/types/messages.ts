@@ -26,7 +26,6 @@ export type UiToBackgroundMessage =
     }
   | { type: 'MODE_SET'; payload: { mode: Mode } }
   | { type: 'SETTINGS_PATCH'; payload: Partial<Settings> }
-  | { type: 'REQUEST_TABS_PERMISSION' }
   | { type: 'TASK_CANDIDATE_ACCEPT'; payload: { candidateId: string; title?: string } }
   | { type: 'TASK_CANDIDATE_DISMISS'; payload: { candidateId: string } }
   | { type: 'CLEAR_WORK_PATTERNS' }

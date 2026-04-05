@@ -217,29 +217,11 @@ export function createUiMessageHandler(deps: {
         return buildHydratePayload(workEngine)
       }
       case 'SETTINGS_PATCH': {
-        const prev = await getSettings()
         const next = await patchSettings(message.payload)
         if (message.payload.mode !== undefined) {
           const s = await getSessionState()
           await setSessionState({ ...s, activeMode: next.mode })
         }
-        if (message.payload.activityAwarenessEnabled === true) {
-          const granted = await requestTabsPermission()
-          if (!granted) {
-            await patchSettings({ activityAwarenessEnabled: false })
-          }
-        }
-        if (
-          message.payload.activityAwarenessEnabled === false &&
-          prev.activityAwarenessEnabled === true
-        ) {
-          await removeOptionalPermission('tabs').catch(() => false)
-        }
-        onAfterMutation()
-        return buildHydratePayload(workEngine)
-      }
-      case 'REQUEST_TABS_PERMISSION': {
-        await requestTabsPermission()
         onAfterMutation()
         return buildHydratePayload(workEngine)
       }

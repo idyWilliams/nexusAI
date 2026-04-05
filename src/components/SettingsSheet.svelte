@@ -6,7 +6,6 @@
   export let hydrate: HydratePayload
   export let onClose: () => void
   export let onPatchSettings: (patch: Partial<Settings>) => Promise<void>
-  export let onRequestTabs: () => Promise<void>
   export let onClearPatterns: () => Promise<void>
   export let onRemoveDomain: (domain: string) => Promise<void>
   /** Minimal mode hides the hero recovery control; this keeps recovery reachable without adding shell noise */
@@ -31,9 +30,32 @@
     void patch({ memoryLevel: v as Settings['memoryLevel'] })
   }
 
-  async function onActivityToggle(e: Event) {
-    const checked = (e.currentTarget as HTMLInputElement).checked
-    await patch({ activityAwarenessEnabled: checked })
+  let toggleStatus: 'off' | 'enabling...' | 'on' | 'permission blocked' = hydrate.settings.activityAwarenessEnabled ? 'on' : 'off'
+
+  $: if (hydrate.settings.activityAwarenessEnabled && toggleStatus !== 'enabling...') toggleStatus = 'on'
+  $: if (!hydrate.settings.activityAwarenessEnabled && toggleStatus !== 'permission blocked' && toggleStatus !== 'enabling...') toggleStatus = 'off'
+
+  async function handleActivityToggle() {
+    if (settings.activityAwarenessEnabled) {
+      toggleStatus = 'off'
+      await patch({ activityAwarenessEnabled: false })
+      try {
+        await chrome.permissions.remove({ permissions: ['tabs'] })
+      } catch (err) {}
+    } else {
+      toggleStatus = 'enabling...'
+      try {
+        const granted = await chrome.permissions.request({ permissions: ['tabs'] })
+        if (granted) {
+          toggleStatus = 'on'
+          await patch({ activityAwarenessEnabled: true })
+        } else {
+          toggleStatus = 'permission blocked'
+        }
+      } catch (err) {
+        toggleStatus = 'permission blocked'
+      }
+    }
   }
 
   function onAiToggle(e: Event) {
@@ -122,23 +144,28 @@
           </p>
         </div>
 
-        <label class="toggle">
-          <input
-            type="checkbox"
-            checked={settings.activityAwarenessEnabled}
-            on:change={(e) => void onActivityToggle(e)}
-          />
-          <span>Allow work-aware observation (optional permission)</span>
-        </label>
-        {#if !tabsGranted && settings.activityAwarenessEnabled}
-          <p class="hint">
-            Permission not granted — approve the browser prompt when it appears, or use the button below. Denying keeps
-            NEXUS usable; Continue stays coarse-signal only until you allow access.
-          </p>
-          <button type="button" class="linkish" on:click={() => void onRequestTabs()}>
-            Request permission
+        <div class="toggle-row">
+          <button 
+            type="button"
+            class="nx-switch"
+            class:nx-switch-on={settings.activityAwarenessEnabled}
+            class:nx-switch-loading={toggleStatus === 'enabling...'}
+            on:click={() => void handleActivityToggle()}
+            aria-label="Allow work-aware observation"
+            disabled={toggleStatus === 'enabling...'}
+          >
+            <span class="nx-switch-knob"></span>
           </button>
-        {/if}
+          <div class="toggle-labels">
+            <span class="toggle-main-label">Allow work-aware observation (optional permission)</span>
+            {#if toggleStatus === 'permission blocked'}
+              <p class="toggle-error">Chrome permission was denied. Enable it to allow work-aware observation.</p>
+            {:else if toggleStatus === 'enabling...'}
+              <p class="toggle-loading-text">Requesting permission...</p>
+            {/if}
+          </div>
+        </div>
+
         {#if tabsGranted && !settings.activityAwarenessEnabled}
           <p class="hint">
             Access may still be granted in the browser, but NEXUS is <strong>not</strong> observing until you turn this on.
@@ -341,6 +368,72 @@
   }
   .toggle input {
     margin-top: 0.2rem;
+  }
+  .toggle-row {
+    display: flex;
+    gap: 0.8rem;
+    align-items: flex-start;
+    margin-top: 0.25rem;
+  }
+  .nx-switch {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    background: var(--nx-line);
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+  }
+  .nx-switch:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .nx-switch-on {
+    background: var(--nx-accent);
+  }
+  .nx-switch-loading {
+    animation: nxPulse 1.5s infinite;
+  }
+  @keyframes nxPulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+  }
+  .nx-switch-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .nx-switch-on .nx-switch-knob {
+    transform: translateX(16px);
+  }
+  .toggle-labels {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .toggle-main-label {
+    font-size: 0.92rem;
+    color: var(--nx-fg);
+  }
+  .toggle-error {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #ef4444; /* Calm red */
+  }
+  .toggle-loading-text {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--nx-accent);
   }
   code {
     font-size: 0.85em;

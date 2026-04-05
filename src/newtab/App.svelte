@@ -97,10 +97,6 @@
     )
   }
 
-  async function requestTabs() {
-    commitHydrate(await sendToBackground({ type: 'REQUEST_TABS_PERMISSION' }))
-  }
-
   async function endGameSession() {
     gameOpen = false
     commitHydrate(
@@ -349,7 +345,6 @@
       {hydrate}
       onClose={() => (settingsOpen = false)}
       onPatchSettings={patchSettings}
-      onRequestTabs={requestTabs}
       onClearPatterns={clearPatterns}
       onRemoveDomain={removeDomain}
       onOpenRecovery={() => (gameOpen = true)}
