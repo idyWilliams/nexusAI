@@ -2,7 +2,11 @@ import type { HydratePayload } from '$lib/types/messages'
 import type { UiToBackgroundMessage } from '$lib/types/messages'
 import { BUILD_ID } from '$lib/types/messages'
 import { WorkPatternEngine } from '$lib/engines/workPatternEngine'
-import { attachActivityObserver, hasTabsPermission } from './activityObserver'
+import { hasTabsPermission } from './activityObserver'
+import { attachBrowsingObservers } from './browsingObservers'
+import { getMemoryVault } from '$lib/memory/vault'
+import { getSettings } from '$lib/storage'
+import { DEFAULT_CONTEXT_RECOVERY } from '$lib/memory/types'
 import { createUiMessageHandler } from './handlers/uiMessageHandler'
 import { getFallbackSettingsForError, getFallbackSessionForError } from '$lib/storage'
 import { DEFAULT_AI_SESSION } from '$lib/storage/types'
@@ -10,18 +14,25 @@ import { parseUiToBackgroundMessage, looksLikeNexusUiMessage } from '$lib/messag
 import { createInvalidPayloadHydrate } from '$lib/messages/fallbackHydrate'
 
 const workEngine = new WorkPatternEngine()
+const memoryVault = getMemoryVault()
 let detachObserver: (() => void) | null = null
 
 function reconnectObserver(): void {
   detachObserver?.()
   detachObserver = null
   void (async () => {
-    const settings = await getFallbackSettingsForError()
+    const settings = await getSettings()
     if (!settings.activityAwarenessEnabled) return
     const ok = await hasTabsPermission()
     if (!ok) return
     await workEngine.load()
-    detachObserver = attachActivityObserver(workEngine)
+    await memoryVault.open()
+    const recordMemory = settings.memoryLevel !== 'off'
+    detachObserver = attachBrowsingObservers(
+      workEngine,
+      recordMemory ? memoryVault : null,
+      { recordMemory }
+    )
   })()
 }
 
@@ -46,11 +57,40 @@ chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse: (
   const parsed = parseUiToBackgroundMessage(message)
   if (!parsed) {
     if (looksLikeNexusUiMessage(message)) {
-      void Promise.resolve(createInvalidPayloadHydrate()).then(sendResponse)
+      void Promise.resolve(createInvalidPayloadHydrate()).then(sendResponse as any)
       return true
     }
     return false
   }
+  
+  if (parsed.type === 'AI_EXPLAIN_THREAD_REQUEST') {
+    void (async () => {
+      try {
+        const aiClient = (await import('$lib/ai')).createAiClient()
+        const explanation = await aiClient.explainThread({
+          label: parsed.label,
+          pages: parsed.pages
+        })
+        sendResponse({
+          type: 'AI_EXPLAIN_THREAD_RESPONSE',
+          threadId: parsed.threadId,
+          summary: explanation.summary,
+          basedOn: explanation.basedOn,
+          isAiGenerated: true
+        } as any)
+      } catch (err) {
+        sendResponse({
+          type: 'AI_EXPLAIN_THREAD_RESPONSE',
+          threadId: parsed.threadId,
+          summary: 'Unable to explain this work session right now.',
+          basedOn: [],
+          isAiGenerated: false
+        } as any)
+      }
+    })()
+    return true
+  }
+
   void dispatchMessage(parsed)
     .then(sendResponse)
     .catch(async () => {
@@ -70,7 +110,8 @@ chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse: (
           suggestions: [],
           previewLine: 'Error loading assistant'
         },
-        aiSession: DEFAULT_AI_SESSION
+        aiSession: DEFAULT_AI_SESSION,
+        contextRecovery: { ...DEFAULT_CONTEXT_RECOVERY }
       } satisfies HydratePayload)
     })
   return true

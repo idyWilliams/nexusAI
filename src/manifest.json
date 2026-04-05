@@ -11,5 +11,5 @@
     "newtab": "src/newtab/index.html"
   },
   "permissions": ["storage", "alarms"],
-  "optional_permissions": ["tabs", "notifications"]
+  "optional_permissions": ["tabs", "notifications", "tabGroups"]
 }

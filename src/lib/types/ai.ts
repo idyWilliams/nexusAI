@@ -55,5 +55,20 @@ export interface AiTaskPolishResponse {
   isAiGenerated: boolean
 }
 
-export type AiRequest = AiSummaryRequest | AiTaskPolishRequest
-export type AiResponse = AiSummaryResponse | AiTaskPolishResponse
+export interface AiExplainThreadRequest {
+  type: 'AI_EXPLAIN_THREAD_REQUEST'
+  threadId: string
+  label: string
+  pages: Array<{ title: string; domain: string; url: string }>
+}
+
+export interface AiExplainThreadResponse {
+  type: 'AI_EXPLAIN_THREAD_RESPONSE'
+  threadId: string
+  summary: string
+  basedOn: string[]
+  isAiGenerated: boolean
+}
+
+export type AiRequest = AiSummaryRequest | AiTaskPolishRequest | AiExplainThreadRequest
+export type AiResponse = AiSummaryResponse | AiTaskPolishResponse | AiExplainThreadResponse

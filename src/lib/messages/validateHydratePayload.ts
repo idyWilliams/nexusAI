@@ -1,5 +1,7 @@
 import type { AssistantSuggestion, AssistantViewModel } from '$lib/types/assistant'
 import type { HydratePayload } from '$lib/types/messages'
+import type { ContextRecoverySnapshot, MemoryRecallHitUi } from '$lib/memory/types'
+import { DEFAULT_CONTEXT_RECOVERY } from '$lib/memory/types'
 import type { Suggestion } from '$lib/types/suggestions'
 import type { TaskCandidate } from '$lib/types/tasks'
 import { sanitizeSession, sanitizeSettings } from '$lib/storage/sanitize'
@@ -82,6 +84,65 @@ function isAssistantViewModel(x: unknown): x is AssistantViewModel {
   return true
 }
 
+function isRecallHit(x: unknown): x is MemoryRecallHitUi {
+  if (!x || typeof x !== 'object') return false
+  const o = x as Record<string, unknown>
+  if (o.kind !== 'page' && o.kind !== 'thread') return false
+  if (typeof o.score !== 'number' || !Number.isFinite(o.score)) return false
+  if (typeof o.title !== 'string' || typeof o.domain !== 'string' || typeof o.iconUrl !== 'string') {
+    return false
+  }
+  if (o.snippet !== null && typeof o.snippet !== 'string') return false
+  if (typeof o.whenLabel !== 'string') return false
+  if (o.url !== undefined && typeof o.url !== 'string') return false
+  if (o.threadId !== undefined && typeof o.threadId !== 'string') return false
+  if (o.pageId !== undefined && typeof o.pageId !== 'string') return false
+  return true
+}
+
+function isContextThreadPreview(x: unknown): x is NonNullable<ContextRecoverySnapshot['topThread']> {
+  if (!x || typeof x !== 'object') return false
+  const o = x as Record<string, unknown>
+  if (typeof o.id !== 'string' || typeof o.label !== 'string') return false
+  if (typeof o.pageCount !== 'number' || !Number.isFinite(o.pageCount)) return false
+  if (typeof o.activeMinutesEstimate !== 'number' || !Number.isFinite(o.activeMinutesEstimate)) {
+    return false
+  }
+  if (typeof o.lastActivityAt !== 'number' || !Number.isFinite(o.lastActivityAt)) return false
+  if (!Array.isArray(o.pages)) return false
+  for (const p of o.pages) {
+    if (!p || typeof p !== 'object') return false
+    const r = p as Record<string, unknown>
+    if (typeof r.url !== 'string' || typeof r.title !== 'string' || typeof r.domain !== 'string') {
+      return false
+    }
+    if (typeof r.iconUrl !== 'string') return false
+  }
+  return true
+}
+
+function parseContextRecovery(raw: unknown): ContextRecoverySnapshot {
+  if (!raw || typeof raw !== 'object') return { ...DEFAULT_CONTEXT_RECOVERY }
+  const o = raw as Record<string, unknown>
+  if (typeof o.enabled !== 'boolean') return { ...DEFAULT_CONTEXT_RECOVERY }
+  if (typeof o.recentPageCount !== 'number' || !Number.isFinite(o.recentPageCount)) {
+    return { ...DEFAULT_CONTEXT_RECOVERY }
+  }
+  if (!Array.isArray(o.recallHits) || !o.recallHits.every(isRecallHit)) {
+    return { ...DEFAULT_CONTEXT_RECOVERY }
+  }
+  const top = o.topThread
+  const topThread =
+    top === null || top === undefined ? null : isContextThreadPreview(top) ? top : null
+
+  return {
+    enabled: o.enabled,
+    topThread,
+    recentPageCount: o.recentPageCount,
+    recallHits: o.recallHits as MemoryRecallHitUi[]
+  }
+}
+
 function isTopDomainRow(x: unknown): x is { domain: string; count: number } {
   if (!x || typeof x !== 'object') return false
   const o = x as Record<string, unknown>
@@ -121,6 +182,8 @@ export function validateHydratePayload(raw: unknown): HydratePayload | null {
     ? o.aiSession as { summary: string; taskPolish: string; lastError: string | null }
     : { summary: 'idle', taskPolish: 'idle', lastError: null }
 
+  const contextRecovery = parseContextRecovery(o.contextRecovery)
+
   return {
     settings,
     session,
@@ -132,6 +195,7 @@ export function validateHydratePayload(raw: unknown): HydratePayload | null {
     transparencyTopDomains: o.transparencyTopDomains as HydratePayload['transparencyTopDomains'],
     recoveryLastPlayedAt: rlp as number | null,
     assistant: o.assistant as AssistantViewModel,
-    aiSession: aiSession as any
+    aiSession: aiSession as any,
+    contextRecovery
   }
 }

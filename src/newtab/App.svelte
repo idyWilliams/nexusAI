@@ -4,6 +4,8 @@
   import ShortcutsBar from '../components/ShortcutsBar.svelte'
   import SettingsSheet from '../components/SettingsSheet.svelte'
   import AssistantPanel from '../components/AssistantPanel.svelte'
+  import ContextThreadCard from '../components/ContextThreadCard.svelte'
+  import MemoryCommandBar from '../components/MemoryCommandBar.svelte'
   import CalmCirclesGame from '../games/CalmCirclesGame.svelte'
   import { sendToBackground } from '$lib/messageBus'
   import type { HydratePayload, Settings } from '$lib/types'
@@ -15,6 +17,7 @@
   let gameOpen = false
   let timeLabel = ''
   let tick: number
+  let memoryCommandBar: { focusCommand: () => void } | undefined
 
   function applyTheme(theme: Settings['theme']) {
     const root = document.documentElement
@@ -131,6 +134,12 @@
     }
   }
 
+  async function runMemoryRecall(query: string) {
+    commitHydrate(
+      await sendToBackground({ type: 'MEMORY_RECALL', payload: { query } })
+    )
+  }
+
   async function handleAiTaskPolishRequest(candidateId: string) {
     try {
       await sendToBackground({ type: 'AI_POLISH_TASK_REQUEST', candidateId })
@@ -140,6 +149,11 @@
   }
 
   function onDocumentKeydown(e: KeyboardEvent) {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault()
+      memoryCommandBar?.focusCommand()
+      return
+    }
     if (e.key !== 'Escape') return
     if (gameOpen) {
       e.preventDefault()
@@ -254,6 +268,24 @@
                 suggestion={hydrate.suggestions[0] ?? null}
                 emptyReason={hydrate.continueEmptyReason}
                 onDismiss={dismissSuggestion}
+              />
+            </section>
+            {#if hydrate.contextRecovery.topThread}
+              <section class="thread-section" aria-label="Thread continuation">
+                <ContextThreadCard
+                  thread={hydrate.contextRecovery.topThread}
+                  memoryEnabled={hydrate.settings.memoryLevel !== 'off'}
+                  tabsPermission={hydrate.tabsPermission}
+                />
+              </section>
+            {/if}
+            <section class="recall-section" aria-label="Memory recall">
+              <MemoryCommandBar
+                bind:this={memoryCommandBar}
+                recallHits={hydrate.contextRecovery.recallHits}
+                memoryEnabled={hydrate.settings.memoryLevel !== 'off'}
+                tabsPermission={hydrate.tabsPermission}
+                on:search={(e) => void runMemoryRecall(e.detail.query)}
               />
             </section>
           {/if}

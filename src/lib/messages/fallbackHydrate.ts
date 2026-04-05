@@ -3,6 +3,7 @@ import { DEFAULT_SETTINGS } from '$lib/types/settings'
 import { DEFAULT_SESSION } from '$lib/types/session'
 import { sanitizeSettings, sanitizeSession } from '$lib/storage/sanitize'
 import { DEFAULT_AI_SESSION } from '$lib/storage/types'
+import { DEFAULT_CONTEXT_RECOVERY } from '$lib/memory/types'
 
 function fallbackAssistant(): HydratePayload['assistant'] {
   return {
@@ -25,7 +26,8 @@ function baseFallback(patternSummaries: string[]): HydratePayload {
     transparencyTopDomains: [],
     recoveryLastPlayedAt: null,
     assistant: fallbackAssistant(),
-    aiSession: DEFAULT_AI_SESSION
+    aiSession: DEFAULT_AI_SESSION,
+    contextRecovery: { ...DEFAULT_CONTEXT_RECOVERY }
   }
 }
 

@@ -16,10 +16,15 @@ import type { WorkPatternState } from '$lib/types/workPattern'
 import { routeContinueSuggestions, maybeGenerateTaskCandidate } from '$lib/engines'
 import { computeContinueEmptyReason } from '$lib/engines/continueEmptyReason'
 import { hasTabsPermission } from '../activityObserver'
+import { buildContextRecoverySnapshot } from '$lib/memory/contextRecovery'
+import { getMemoryVault } from '$lib/memory/vault'
 
 export { computeContinueEmptyReason } from '$lib/engines/continueEmptyReason'
 
-export async function buildHydratePayload(workEngine: WorkPatternEngine): Promise<HydratePayload> {
+export async function buildHydratePayload(
+  workEngine: WorkPatternEngine,
+  opts?: { memoryRecallQuery?: string | null }
+): Promise<HydratePayload> {
   const settings = await getSettings()
   const session = await getSessionState()
   const dismissals = await getDismissalState()
@@ -61,6 +66,14 @@ export async function buildHydratePayload(workEngine: WorkPatternEngine): Promis
   )
 
   const now = Date.now()
+  const contextRecovery = await buildContextRecoverySnapshot(
+    getMemoryVault(),
+    settings,
+    tabsPermission,
+    opts?.memoryRecallQuery ?? null,
+    now
+  )
+
   const assistant = computeAssistantViewModel({
     mode: settings.mode,
     patternSummaries,
@@ -83,6 +96,7 @@ export async function buildHydratePayload(workEngine: WorkPatternEngine): Promis
     transparencyTopDomains,
     recoveryLastPlayedAt: recovery.lastPlayedAt,
     assistant,
-    aiSession: await getAiSession()
+    aiSession: await getAiSession(),
+    contextRecovery
   }
 }

@@ -32,6 +32,12 @@ describe('parseUiToBackgroundMessage', () => {
     expect(m).toEqual({ type: 'SETTINGS_PATCH', payload: { mode: 'focus' } })
   })
 
+  it('parses MEMORY_RECALL', () => {
+    expect(
+      parseUiToBackgroundMessage({ type: 'MEMORY_RECALL', payload: { query: 'stripe' } })
+    ).toEqual({ type: 'MEMORY_RECALL', payload: { query: 'stripe' } })
+  })
+
   it('looksLikeNexusUiMessage is true for malformed known type', () => {
     const raw = { type: 'GAME_SESSION_END', payload: {} }
     expect(looksLikeNexusUiMessage(raw)).toBe(true)

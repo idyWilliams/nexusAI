@@ -18,6 +18,7 @@ import {
   type DismissalState
 } from '$lib/storage'
 import type { WorkPatternEngine } from '$lib/engines/workPatternEngine'
+import { getMemoryVault } from '$lib/memory/vault'
 import { buildHydratePayload } from '../hydration/buildHydratePayload'
 import { removeOptionalPermission } from '$lib/permissions/chromePermissions'
 import { requestTabsPermission } from '../activityObserver'
@@ -279,6 +280,43 @@ export function createUiMessageHandler(deps: {
       }
       case 'CLEAR_WORK_PATTERNS': {
         await workEngine.clearAll()
+        await getMemoryVault().clearAll()
+        return buildHydratePayload(workEngine)
+      }
+      case 'RESUME_THREAD_REQUEST': {
+        try {
+          const urls = message.payload.urls
+          const label = message.payload.label
+          
+          if (!urls || urls.length === 0) return buildHydratePayload(workEngine)
+          
+          const uniqueUrls = [...new Set(urls)]
+          const tabIds: number[] = []
+          
+          for (const url of uniqueUrls) {
+            const existing = await chrome.tabs.query({ url })
+            if (existing && existing.length > 0 && existing[0].id) {
+              tabIds.push(existing[0].id)
+            } else {
+              const created = await chrome.tabs.create({ url, active: false })
+              if (created.id) tabIds.push(created.id)
+            }
+          }
+          
+          if (tabIds.length > 0) {
+            const groupId = await chrome.tabs.group({ tabIds })
+            await chrome.tabGroups.update(groupId, { title: label, color: 'blue' })
+            await chrome.tabs.update(tabIds[0], { active: true })
+            if (tabIds[0]) {
+               const tab = await chrome.tabs.get(tabIds[0])
+               if (tab.windowId) {
+                  await chrome.windows.update(tab.windowId, { focused: true })
+               }
+            }
+          }
+        } catch (error) {
+          console.error('[NEXUS] Failed to resume thread:', error)
+        }
         return buildHydratePayload(workEngine)
       }
       case 'REMOVE_DOMAIN_FROM_PATTERNS': {
@@ -305,11 +343,18 @@ export function createUiMessageHandler(deps: {
         })
         return buildHydratePayload(workEngine)
       }
+      case 'MEMORY_RECALL': {
+        return buildHydratePayload(workEngine, { memoryRecallQuery: message.payload.query })
+      }
       case 'AI_SUMMARIZE_REQUEST': {
         return await handleAiSummaryRequest(workEngine)
       }
       case 'AI_POLISH_TASK_REQUEST': {
         return await handleAiTaskPolishRequest(workEngine, message.candidateId)
+      }
+      case 'AI_EXPLAIN_THREAD_REQUEST': {
+        // Intercepted higher up in serviceWorker, provided here to satisfy type exhaustiveness.
+        return buildHydratePayload(workEngine)
       }
       default: {
         const _exhaustive: never = message

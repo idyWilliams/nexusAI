@@ -5,6 +5,7 @@ import type { TaskCandidate } from './tasks'
 import type { AssistantViewModel } from './assistant'
 import type { AiRequest, AiResponse } from './ai'
 import type { AiSessionState } from '../storage/types'
+import type { ContextRecoverySnapshot } from '$lib/memory/types'
 
 export const BUILD_ID = '0.1.0-mvp'
 
@@ -33,6 +34,9 @@ export type UiToBackgroundMessage =
   | { type: 'GAME_SESSION_END'; payload: { endedAt: number } }
   /** Hide an Assistant row for cooldown — OPEN_CONTINUE stays UI-side (no extra tabs permission) */
   | { type: 'ASSISTANT_DISMISS_SUGGESTION'; payload: { suggestionId: string } }
+  /** Local memory recall (IndexedDB metadata search) */
+  | { type: 'MEMORY_RECALL'; payload: { query: string } }
+  | { type: 'RESUME_THREAD_REQUEST'; payload: { label: string; urls: string[] } }
   /** AI-powered Assistant features */
   | AiRequest
 
@@ -64,6 +68,8 @@ export interface HydratePayload {
   assistant: AssistantViewModel
   /** AI session state for tracking ongoing requests */
   aiSession: AiSessionState
+  /** Context Recovery Engine snapshot — threads + optional recall hits */
+  contextRecovery: ContextRecoverySnapshot
 }
 
 export type NexusMessage = UiToBackgroundMessage | BackgroundToUiMessage

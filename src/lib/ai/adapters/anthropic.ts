@@ -41,6 +41,24 @@ Make it more actionable and professional. Keep it concise.`
         title: lines[0] || input.roughTitle,
         description: lines.slice(1).join(' ').trim() || input.provenance
       }
+    },
+    
+    async explainThread(input: { label: string, pages: Array<{ title: string; domain: string }> }): Promise<{ summary: string, basedOn: string[] }> {
+      const pageList = input.pages.map(p => `- ${p.title} (${p.domain})`).join('\n')
+      const prompt = `Summarize this contextual browsing thread into 2 concise sentences or 2-4 bullets. Focus on what the user was likely trying to accomplish.
+      
+Thread Label: "${input.label}"
+Pages in thread:
+${pageList}
+
+Output only the summary, keep it under 40 words.`
+
+      const response = await callAnthropic(prompt, model, apiKey, timeout)
+      
+      return {
+        summary: response.trim(),
+        basedOn: input.pages.slice(0, 3).map(p => p.title)
+      }
     }
   }
 }

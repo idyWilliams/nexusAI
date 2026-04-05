@@ -13,7 +13,13 @@ const KNOWN_TYPES = new Set<string>([
   'TASK_CANDIDATE_DISMISS',
   'CLEAR_WORK_PATTERNS',
   'REMOVE_DOMAIN_FROM_PATTERNS',
-  'GAME_SESSION_END'
+  'GAME_SESSION_END',
+  'ASSISTANT_DISMISS_SUGGESTION',
+  'MEMORY_RECALL',
+  'RESUME_THREAD_REQUEST',
+  'AI_SUMMARIZE_REQUEST',
+  'AI_POLISH_TASK_REQUEST',
+  'AI_EXPLAIN_THREAD_REQUEST'
 ])
 
 function isRecord(x: unknown): x is Record<string, unknown> {
@@ -91,6 +97,36 @@ export function parseUiToBackgroundMessage(raw: unknown): UiToBackgroundMessage 
         return null
       }
       return { type: 'GAME_SESSION_END', payload: { endedAt: raw.payload.endedAt } }
+    }
+    case 'ASSISTANT_DISMISS_SUGGESTION': {
+      if (!isRecord(raw.payload) || typeof raw.payload.suggestionId !== 'string' || !raw.payload.suggestionId) {
+        return null
+      }
+      return { type: 'ASSISTANT_DISMISS_SUGGESTION', payload: { suggestionId: raw.payload.suggestionId } }
+    }
+    case 'MEMORY_RECALL': {
+      if (!isRecord(raw.payload) || typeof raw.payload.query !== 'string') return null
+      return { type: 'MEMORY_RECALL', payload: { query: raw.payload.query } }
+    }
+    case 'AI_SUMMARIZE_REQUEST':
+      return { type: 'AI_SUMMARIZE_REQUEST' }
+    case 'AI_POLISH_TASK_REQUEST': {
+      if (typeof raw.candidateId !== 'string' || !raw.candidateId.trim()) return null
+      return { type: 'AI_POLISH_TASK_REQUEST', candidateId: raw.candidateId.trim() }
+    }
+    case 'RESUME_THREAD_REQUEST': {
+      if (!isRecord(raw.payload) || typeof raw.payload.label !== 'string' || !Array.isArray(raw.payload.urls)) return null
+      if (!raw.payload.urls.every((u) => typeof u === 'string')) return null
+      return { type: 'RESUME_THREAD_REQUEST', payload: { label: raw.payload.label, urls: raw.payload.urls } as any }
+    }
+    case 'AI_EXPLAIN_THREAD_REQUEST': {
+      if (typeof raw.threadId !== 'string' || typeof raw.label !== 'string' || !Array.isArray(raw.pages)) return null
+      return { 
+        type: 'AI_EXPLAIN_THREAD_REQUEST', 
+        threadId: raw.threadId, 
+        label: raw.label, 
+        pages: raw.pages as any 
+      }
     }
     default:
       return null

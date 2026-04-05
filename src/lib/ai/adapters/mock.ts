@@ -31,6 +31,18 @@ export function createMockAdapter(): NexusAIClient {
         title: title.charAt(0).toUpperCase() + title.slice(1),
         description: `Based on recent activity: ${input.provenance}`
       }
+    },
+    
+    async explainThread(input: { label: string, pages: Array<{ title: string; domain: string }> }): Promise<{ summary: string, basedOn: string[] }> {
+      await new Promise(resolve => setTimeout(resolve, 800))
+      
+      const basedOn = input.pages.slice(0, 3).map(p => p.title)
+      const domains = [...new Set(input.pages.map(p => p.domain))]
+      
+      return {
+        summary: `You were researching ${input.label} across ${domains.length} domains. Focus was primarily on gathering context and reading documentation.`,
+        basedOn
+      }
     }
   }
 }
