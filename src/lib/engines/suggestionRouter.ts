@@ -38,15 +38,27 @@ export interface RouterInput {
 
 function reasonLine(settings: Settings, visit: RecentVisit): string {
   const work = isLikelyWorkDomain(visit.domain)
+  const age = Date.now() - visit.visitedAt
+  const ageMinutes = Math.floor(age / (1000 * 60))
+  
   if (settings.mode === 'focus') {
-    return work
-      ? 'A recent work context — open to continue without extra noise.'
-      : 'Pick up where you left off — single focus.'
+    if (work) {
+      return 'Recent work context — continue without distractions.'
+    }
+    return 'Pick up where you left off — single focus.'
   }
+  
   if (work) {
-    return 'Looks like a work context you touched recently — continue when you’re ready.'
+    if (ageMinutes < 30) {
+      return `Recent work in ${visit.domain} — continue while it's fresh.`
+    }
+    return `Work context you touched recently — ${visit.domain}.`
   }
-  return 'Continue where you were recently active — coarse signal, not a log.'
+  
+  if (ageMinutes < 60) {
+    return `Recent activity in ${visit.domain} — continue when ready.`
+  }
+  return `Continue where you were active — ${visit.domain}.`
 }
 
 /**
@@ -92,5 +104,27 @@ export function routeContinueSuggestions(input: RouterInput): Suggestion[] {
 function shortTitle(title: string, domain: string): string {
   const t = title.trim()
   if (t && t.length < 72 && !/^https?:\/\//i.test(t)) return t
-  return domain
+  
+  // For work domains, provide more context
+  const workContexts: Record<string, string> = {
+    'github.com': 'GitHub',
+    'gitlab.com': 'GitLab',
+    'notion.so': 'Notion',
+    'notion.site': 'Notion',
+    'linear.app': 'Linear',
+    'asana.com': 'Asana',
+    'monday.com': 'Monday',
+    'clickup.com': 'ClickUp',
+    'figma.com': 'Figma',
+    'slack.com': 'Slack',
+    'docs.google.com': 'Google Docs',
+    'drive.google.com': 'Google Drive',
+    'mail.google.com': 'Gmail',
+    'calendar.google.com': 'Google Calendar',
+    'office.com': 'Microsoft 365',
+    'outlook.office.com': 'Outlook',
+    'teams.microsoft.com': 'Teams'
+  }
+  
+  return workContexts[domain] || domain
 }

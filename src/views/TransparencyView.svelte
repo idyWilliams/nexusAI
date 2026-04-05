@@ -99,6 +99,24 @@
       {/each}
     </ul>
   </div>
+
+  {#if hydrate.suggestions.length > 0}
+    <div class="block">
+      <h4 class="sub">Current continuation</h4>
+      <div class="continuation">
+        {#each hydrate.suggestions as suggestion}
+          <div class="suggestion-info">
+            <div class="suggestion-title">{suggestion.title}</div>
+            <div class="suggestion-reason">{suggestion.reasonLine}</div>
+            <div class="suggestion-meta">
+              Confidence: {Math.round(suggestion.confidence * 100)}% • 
+              Score: {Math.round((suggestion.confidence - 0.35) / 0.55 * 100) / 100}
+            </div>
+          </div>
+        {/each}
+      </div>
+    </div>
+  {/if}
 </section>
 
 <style>
@@ -208,5 +226,32 @@
     color: var(--nx-fg-muted);
     font-size: 0.92rem;
     line-height: 1.45;
+  }
+  .continuation {
+    padding: 0.75rem;
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--nx-accent) 5%, transparent);
+    border: 1px solid color-mix(in oklab, var(--nx-accent) 15%, transparent);
+  }
+  .suggestion-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .suggestion-title {
+    font-weight: 600;
+    color: var(--nx-fg);
+    font-size: 0.95rem;
+  }
+  .suggestion-reason {
+    color: var(--nx-fg-muted);
+    font-size: 0.88rem;
+    line-height: 1.4;
+  }
+  .suggestion-meta {
+    color: var(--nx-fg-muted);
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.8;
   }
 </style>

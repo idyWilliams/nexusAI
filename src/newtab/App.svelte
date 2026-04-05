@@ -398,132 +398,6 @@
     height: 11.5rem;
     width: min(560px, 100%);
   }
-  .hero {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    align-items: flex-start;
-    margin-bottom: 1.25rem;
-  }
-  .time {
-    margin: 0;
-    font-size: 0.85rem;
-    letter-spacing: 0.04em;
-    color: var(--nx-fg-muted);
-  }
-  .greet {
-    margin: 0.15rem 0 0.25rem;
-    font-size: clamp(1.6rem, 2.6vw, 2.1rem);
-    font-weight: 600;
-    letter-spacing: -0.03em;
-  }
-  .subtle {
-    margin: 0;
-    color: var(--nx-fg-muted);
-    font-size: 0.95rem;
-  }
-  .actions {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    align-items: center;
-  }
-  .pill {
-    font-size: 0.78rem;
-    padding: 0.35rem 0.6rem;
-    border-radius: 999px;
-    border: 1px solid var(--nx-line);
-    color: var(--nx-fg-muted);
-    align-self: flex-start;
-  }
-  .ghost {
-    border-radius: 999px;
-    border: 1px solid var(--nx-line);
-    background: transparent;
-    color: var(--nx-fg);
-    padding: 0.45rem 0.75rem;
-    font-size: 0.88rem;
-    transition: opacity 0.2s ease, border-color 0.2s ease;
-  }
-  .ghost-quiet {
-    opacity: 0.65;
-  }
-  .link-quiet {
-    border: none;
-    background: none;
-    padding: 0.35rem 0.45rem;
-    font-size: 0.82rem;
-    color: var(--nx-fg-muted);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-  .icon-ghost {
-    border-radius: 999px;
-    border: 1px solid var(--nx-line);
-    background: transparent;
-    color: var(--nx-fg);
-    width: 2.25rem;
-    height: 2.25rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-  }
-  .gear {
-    font-size: 1rem;
-    line-height: 1;
-  }
-  .grid {
-    margin-top: 0.25rem;
-    min-height: 11.5rem;
-  }
-  .task {
-    margin-top: 1rem;
-    max-width: 560px;
-  }
-  .card {
-    background: var(--nx-bg-elevated);
-    border: 1px solid var(--nx-line);
-    border-radius: var(--nx-radius);
-    padding: 1.1rem 1.2rem;
-    box-shadow: var(--nx-shadow);
-  }
-  .eyebrow {
-    margin: 0 0 0.35rem;
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--nx-fg-muted);
-  }
-  .t {
-    margin: 0 0 0.35rem;
-    font-size: 1.05rem;
-    font-weight: 600;
-  }
-  .why {
-    margin: 0;
-    font-size: 0.9rem;
-    color: var(--nx-fg-muted);
-    line-height: 1.45;
-  }
-  .row {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.85rem;
-  }
-  .btn {
-    border-radius: 999px;
-    border: 1px solid var(--nx-line);
-    padding: 0.45rem 0.85rem;
-    background: transparent;
-    color: var(--nx-fg);
-    font-size: 0.88rem;
-  }
-  .btn.primary {
-    background: color-mix(in oklab, var(--nx-accent) 22%, transparent);
-    border-color: color-mix(in oklab, var(--nx-accent) 45%, transparent);
-  }
   .overlay {
     position: fixed;
     inset: 0;
@@ -573,10 +447,22 @@
 
   /* Premium NEXUS Design System */
   .nexus-header {
-    padding: var(--nx-space-8) var(--nx-space-8) var(--nx-space-6);
+    padding: var(--nx-space-12) var(--nx-space-8) var(--nx-space-8);
     background: linear-gradient(180deg, var(--nx-bg) 0%, var(--nx-bg-surface) 100%);
     border-bottom: 1px solid var(--nx-line);
     backdrop-filter: blur(20px);
+    position: relative;
+  }
+
+  .nexus-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--nx-line-strong), transparent);
+    opacity: 0.5;
   }
 
   .header-content {
@@ -681,8 +567,21 @@
   .nexus-content {
     max-width: 1200px;
     margin: 0 auto;
-    padding: var(--nx-space-8);
+    padding: var(--nx-space-12) var(--nx-space-8);
     min-height: calc(100vh - 200px);
+    position: relative;
+  }
+
+  .nexus-content::before {
+    content: '';
+    position: absolute;
+    top: -var(--nx-space-8);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: var(--nx-space-4);
+    background: linear-gradient(180deg, var(--nx-accent), transparent);
+    opacity: 0.3;
   }
 
   .nexus-content.minimal {
@@ -793,22 +692,99 @@
   }
 
   /* Mode-specific adjustments */
+  .nexus-content.focus .command-surface {
+    transform: scale(1.04);
+    border-color: color-mix(in oklab, var(--nx-accent) 25%, transparent);
+    box-shadow: 
+      0 12px 40px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .nexus-content.focus .command-surface:hover {
+    transform: scale(1.05) translateY(-3px);
+    box-shadow: 
+      0 20px 60px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
   .nexus-content.focus .premium-card {
-    border-color: color-mix(in oklab, var(--nx-accent) 20%, transparent);
+    opacity: 0.7;
+    transform: scale(0.98);
   }
 
   .nexus-content.focus .premium-card:hover {
+    opacity: 0.9;
+    transform: scale(0.99);
+  }
+
+  .nexus-content.minimal {
+    background: radial-gradient(ellipse at center, var(--nx-bg) 0%, var(--nx-bg-surface) 100%);
+  }
+
+  .nexus-content.minimal .command-surface {
+    transform: scale(1.06);
     border-color: color-mix(in oklab, var(--nx-accent) 30%, transparent);
+    box-shadow: 
+      0 16px 48px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .nexus-content.minimal .command-surface:hover {
+    transform: scale(1.07) translateY(-4px);
+    box-shadow: 
+      0 24px 64px rgba(0, 0, 0, 0.55),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07);
   }
 
   .nexus-content.minimal .premium-card {
-    border: none;
-    box-shadow: none;
-    background: var(--nx-bg-surface);
+    display: none;
   }
 
-  .nexus-content.minimal .premium-card:hover {
-    transform: none;
-    box-shadow: none;
+  .nexus-content.minimal .nexus-footer {
+    opacity: 0.5;
+  }
+
+  /* Header mode variations */
+  .nexus-content.minimal .nexus-header {
+    background: linear-gradient(180deg, var(--nx-bg) 0%, color-mix(in oklab, var(--nx-accent) 2%, var(--nx-bg-surface)) 100%);
+    border-bottom: none;
+  }
+
+  .nexus-content.focus .nexus-header {
+    background: linear-gradient(180deg, var(--nx-bg) 0%, color-mix(in oklab, var(--nx-accent) 1%, var(--nx-bg-surface)) 100%);
+  }
+
+  /* Control button mode variations */
+  .nexus-content.focus .control-btn {
+    opacity: 0.6;
+  }
+
+  .nexus-content.focus .control-btn:hover {
+    opacity: 1;
+  }
+
+  .nexus-content.minimal .control-btn:not(.settings-btn) {
+    display: none;
+  }
+
+  .nexus-content.minimal .mode-indicator {
+    display: none;
+  }
+
+  /* Greeting mode variations */
+  .nexus-content.focus .greeting {
+    font-size: clamp(24px, 3.5vw, 42px);
+  }
+
+  .nexus-content.minimal .greeting {
+    font-size: clamp(32px, 4.5vw, 56px);
+  }
+
+  .nexus-content.focus .tagline {
+    display: none;
+  }
+
+  .nexus-content.minimal .tagline {
+    display: none;
   }
 </style>
