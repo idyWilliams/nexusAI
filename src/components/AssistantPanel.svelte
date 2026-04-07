@@ -276,15 +276,14 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.75rem 1rem;
+    padding: 0.25rem 0;
     cursor: pointer;
     user-select: none;
-    border-radius: var(--nx-radius) var(--nx-radius) 0 0;
-    transition: background-color 0.2s ease;
+    transition: opacity 0.2s ease;
   }
 
   .assistant-header:hover {
-    background: color-mix(in oklab, var(--nx-fg) 3%, transparent);
+    opacity: 0.8;
   }
 
   .preview-text {
@@ -309,8 +308,7 @@
   }
 
   .assistant-content {
-    padding: 0 1rem 1rem;
-    border-top: 1px solid var(--nx-line);
+    padding: 0.5rem 0 1rem;
   }
 
   .context-summary {
@@ -343,17 +341,18 @@
   .suggestion-btn {
     flex: 1;
     background: transparent;
-    border: 1px solid var(--nx-line);
-    border-radius: var(--nx-radius);
-    padding: 0.75rem;
+    border: none;
+    border-left: 2px solid var(--nx-line);
+    border-radius: 0;
+    padding: 0.25rem 0.75rem;
     cursor: pointer;
     text-align: left;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    transition: border-color 0.2s ease, padding-left 0.2s ease;
   }
 
   .suggestion-btn:hover {
-    background: color-mix(in oklab, var(--nx-fg) 3%, transparent);
-    border-color: color-mix(in oklab, var(--nx-fg) 10%, transparent);
+    border-color: var(--nx-accent);
+    padding-left: 1rem;
   }
 
   .suggestion-main {
@@ -436,27 +435,27 @@
   /* AI Summary Styles */
   .ai-summary-section {
     margin: 1rem 0;
-    padding: 0.75rem;
+    padding: 0;
     background: transparent;
-    border: 1px dotted var(--nx-line);
-    border-radius: var(--nx-radius);
+    border: none;
   }
 
   .ai-summary-btn {
     width: 100%;
     background: transparent;
-    border: 1px solid var(--nx-line);
-    border-radius: var(--nx-radius);
-    padding: 0.5rem;
+    border: none;
+    border-left: 2px solid var(--nx-line);
+    text-align: left;
+    padding: 0.25rem 0.75rem;
     cursor: pointer;
     font-size: 0.85rem;
-    color: var(--nx-fg);
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    color: var(--nx-fg-muted);
+    transition: border-color 0.2s ease, color 0.2s ease;
   }
 
   .ai-summary-btn:hover {
-    background: color-mix(in oklab, var(--nx-accent) 5%, transparent);
-    border-color: color-mix(in oklab, var(--nx-accent) 15%, transparent);
+    border-color: var(--nx-accent);
+    color: var(--nx-fg);
   }
 
   .ai-loading {
@@ -519,9 +518,9 @@
 
   .ai-polished-task {
     background: transparent;
-    border: 1px dashed var(--nx-line);
-    border-radius: var(--nx-radius);
-    padding: 1rem;
+    border: none;
+    border-left: 2px solid var(--nx-line);
+    padding: 0.25rem 0.75rem;
   }
 
   .polished-content {

@@ -70,6 +70,13 @@
     const v = (e.currentTarget as HTMLSelectElement).value
     void patch({ theme: v as Settings['theme'] })
   }
+
+  let nameDebounce: ReturnType<typeof setTimeout> | undefined
+  function onNameChange(e: Event) {
+    const v = (e.currentTarget as HTMLInputElement).value
+    clearTimeout(nameDebounce)
+    nameDebounce = setTimeout(() => void patch({ userName: v }), 400)
+  }
 </script>
 
 {#if open}
@@ -185,6 +192,19 @@
           />
           <span>Personalization</span>
         </label>
+
+        {#if settings.personalizationEnabled}
+          <label class="field" style="margin-left: 1.8rem; margin-top: -0.25rem;">
+            <span class="label">Preferred Name</span>
+            <input 
+              type="text" 
+              class="text-input" 
+              placeholder="How should NEXUS greet you?"
+              value={settings.userName || ''} 
+              on:input={onNameChange} 
+            />
+          </label>
+        {/if}
 
         <label class="field">
           <span class="label">Theme</span>
@@ -328,18 +348,23 @@
     text-transform: uppercase;
     color: var(--nx-fg-muted);
   }
-  .select {
+  .select, .text-input {
     border-radius: 8px;
     border: 1px solid var(--nx-line);
-    padding: 0.45rem 0.55rem;
+    padding: 0.45rem 0.65rem;
     background: transparent;
     color: var(--nx-fg);
     transition: all 0.2s ease;
+    font-size: 0.9rem;
   }
-  .select:focus-visible {
+  .select:focus-visible, .text-input:focus-visible {
     outline: none;
     border-color: var(--nx-accent);
     box-shadow: 0 0 0 2px var(--nx-accent-subtle);
+  }
+  .text-input::placeholder {
+    color: var(--nx-fg-muted);
+    font-weight: 400;
   }
   .callout {
     padding: 0.75rem 0.85rem;

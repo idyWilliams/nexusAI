@@ -7,313 +7,134 @@
 </script>
 
 {#if suggestion}
-  <section class="continue-card command-surface" aria-label="Continue">
-    <div class="command-header">
-      <div class="system-badge">
-        <div class="badge-indicator"></div>
-        <span class="badge-label">Continue</span>
-      </div>
-      <div class="system-status">
-        <span class="status-dot"></span>
-        <span class="status-text">Ready</span>
-      </div>
+  <section class="continue-pane" aria-label="Continue">
+    <div class="pane-eyebrow">Continue</div>
+    <div class="pane-body">
+      <h2 class="command-title">{suggestion.title}</h2>
+      <p class="command-context">{suggestion.reasonLine}</p>
     </div>
-    
-    <div class="command-content">
-      <div class="primary-content">
-        <h2 class="command-title">{suggestion.title}</h2>
-        <p class="command-context">{suggestion.reasonLine}</p>
-      </div>
-    </div>
-    
     <div class="command-actions">
       <a class="command-trigger" href={suggestion.url}>
-        <span class="trigger-text">Open</span>
-        <span class="trigger-arrow">→</span>
+        Open →
       </a>
-      <div class="secondary-controls">
-        <button type="button" class="control-ghost" on:click={() => onDismiss(false)}>
-          Dismiss
-        </button>
-        <button type="button" class="control-ghost subtle" on:click={() => onDismiss(true)}>
-          Don't suggest again
-        </button>
-      </div>
+      <button type="button" class="control-ghost" on:click={() => onDismiss(false)}>
+        Dismiss
+      </button>
     </div>
   </section>
 {:else}
-  <section class="continue-card empty-surface" aria-label="Continue">
-    <div class="empty-header">
-      <div class="system-badge dormant">
-        <div class="badge-indicator"></div>
-        <span class="badge-label">Continue</span>
-      </div>
-    </div>
-    
-    <div class="empty-content">
-      <div class="primary-content">
-        <h2 class="command-title">Start fresh</h2>
-        {#if emptyReason === 'memory_off'}
-          <p class="command-context">
-            Memory is off — NEXUS won't rank continuations. Turn memory on in Settings when you want gentle resume hints.
-          </p>
-        {:else if emptyReason === 'needs_activity'}
-          <p class="command-context">
-            Enable work-aware mode (optional <code>tabs</code> permission) in Settings to let NEXUS see coarse domains — not page content — to suggest continuations.
-          </p>
-        {:else if emptyReason === 'no_visits'}
-          <p class="command-context">
-            No coarse signals yet. As you browse, NEXUS will keep a small local list — enough to suggest a calm resume, not a log.
-          </p>
-        {:else}
-          <p class="command-context">
-            Nothing to resume right now — either you recently dismissed this path, or nothing crossed the calm threshold. Open a tab when you're ready.
-          </p>
-        {/if}
-      </div>
+  <section class="continue-pane empty-surface" aria-label="Continue">
+    <div class="pane-eyebrow">Continue</div>
+    <div class="pane-body">
+      <h2 class="command-title muted">Nothing to resume</h2>
+      {#if emptyReason === 'memory_off'}
+        <p class="command-context">Memory is off. Turn it on in Settings to get resume hints.</p>
+      {:else if emptyReason === 'needs_activity'}
+        <p class="command-context">Enable work-aware mode in Settings to get resume hints.</p>
+      {:else if emptyReason === 'no_visits'}
+        <p class="command-context">No signals yet. Browse and NEXUS will learn your context.</p>
+      {:else}
+        <p class="command-context">Nothing to resume right now.</p>
+      {/if}
     </div>
   </section>
 {/if}
 
 <style>
-  /* Command Surface - Premium System Panel */
-  .continue-card {
-    background: var(--nx-bg-elevated);
-    border: 1px solid var(--nx-line);
-    border-radius: var(--nx-radius-lg);
-    box-shadow: var(--nx-shadow);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
-    position: relative;
+  .continue-pane {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
   }
 
-  .command-surface {
-    background: var(--nx-bg-elevated);
-    border: 1px solid var(--nx-line);
-    box-shadow: var(--nx-shadow-lg);
-  }
-
-  .command-surface:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.4);
-    border-color: var(--nx-line-strong);
+  :global(html.light) .continue-pane {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.07);
   }
 
   .empty-surface {
-    opacity: 0.85;
-    background: var(--nx-bg-surface);
-    border-color: var(--nx-line);
-    transform: scale(1);
+    opacity: 0.65;
   }
 
-  .empty-surface:hover {
-    transform: scale(1.01);
-    opacity: 0.9;
-  }
-
-  .command-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--nx-space-4) var(--nx-space-6);
-    border-bottom: 1px solid var(--nx-line);
-  }
-
-  .empty-header {
-    padding: var(--nx-space-4) var(--nx-space-6);
-    background: var(--nx-bg-surface);
-    border-bottom: 1px solid var(--nx-line);
-  }
-
-  /* System Badge - Status Indicator */
-  .system-badge {
-    display: flex;
-    align-items: center;
-    gap: var(--nx-space-2);
-    padding: var(--nx-space-1) var(--nx-space-3);
-    background: color-mix(in oklab, var(--nx-accent) 12%, transparent);
-    color: var(--nx-accent);
-    border-radius: var(--nx-radius);
+  .pane-eyebrow {
     font-size: 11px;
     font-weight: 600;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .system-badge.dormant {
-    background: var(--nx-accent-subtle);
-    color: var(--nx-accent);
-  }
-
-  .badge-indicator {
-    width: 6px;
-    height: 6px;
-    background: currentColor;
-    border-radius: 50%;
-    opacity: 0.8;
-  }
-
-  .badge-label {
-    font-weight: 600;
-  }
-
-  /* System Status - Ready State */
-  .system-status {
-    display: flex;
-    align-items: center;
-    gap: var(--nx-space-1);
-    font-size: 11px;
     color: var(--nx-fg-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
   }
 
-  .status-dot {
-    width: 4px;
-    height: 4px;
-    background: var(--nx-success);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
-
-  /* Command Content - Main Information */
-  .command-content {
-    padding: var(--nx-space-8) var(--nx-space-6) var(--nx-space-6);
-  }
-
-  .empty-content {
-    padding: var(--nx-space-6);
-  }
-
-  .primary-content {
+  .pane-body {
     display: flex;
     flex-direction: column;
-    gap: var(--nx-space-3);
+    gap: 0.25rem;
+    margin-bottom: 0.875rem;
   }
 
   .command-title {
-    font-size: clamp(28px, 4vw, 36px);
-    font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -0.03em;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
     color: var(--nx-fg);
     margin: 0;
   }
 
+  .command-title.muted {
+    color: var(--nx-fg-muted);
+    font-weight: 500;
+  }
+
   .command-context {
-    font-size: 16px;
+    font-size: 13px;
     color: var(--nx-fg-secondary);
     line-height: 1.5;
     margin: 0;
-    max-width: 90%;
   }
 
-  /* Command Actions - Primary Control */
   .command-actions {
-    padding: var(--nx-space-6);
-    padding-top: 0;
     display: flex;
-    flex-direction: column;
-    gap: var(--nx-space-4);
+    align-items: center;
+    gap: 0.75rem;
   }
 
   .command-trigger {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: var(--nx-space-3);
-    padding: var(--nx-space-3) var(--nx-space-6);
+    gap: 0.35rem;
+    padding: 0.35rem 0.875rem;
     background: var(--nx-accent);
     color: white;
-    border-radius: 999px; /* extremely rounded like pill */
-    font-size: 16px;
+    border-radius: 6px;
+    font-size: 13px;
     font-weight: 600;
     text-decoration: none;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 4px 12px color-mix(in oklab, var(--nx-accent) 30%, transparent);
+    transition: opacity 0.15s ease;
   }
 
   .command-trigger:hover {
-    background: var(--nx-accent-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px color-mix(in oklab, var(--nx-accent) 40%, transparent);
-  }
-
-  .trigger-text {
-    font-weight: 600;
-  }
-
-  .trigger-arrow {
-    font-size: 20px;
-    transition: transform 0.3s ease;
-  }
-
-  .command-trigger:hover .trigger-arrow {
-    transform: translateX(4px);
-  }
-
-  /* Secondary Controls - Subtle Actions */
-  .secondary-controls {
-    display: flex;
-    gap: var(--nx-space-3);
-    flex-wrap: wrap;
+    opacity: 0.88;
   }
 
   .control-ghost {
-    padding: var(--nx-space-2) var(--nx-space-3);
+    padding: 0.35rem 0.5rem;
     background: transparent;
     color: var(--nx-fg-muted);
-    border: 1px solid var(--nx-line);
-    border-radius: var(--nx-radius-sm);
+    border: none;
     font-size: 13px;
-    font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: color 0.15s ease;
   }
 
   .control-ghost:hover {
-    background: var(--nx-accent-subtle);
-    color: var(--nx-accent);
-    border-color: var(--nx-accent);
-    transform: translateY(-1px);
+    color: var(--nx-fg);
   }
 
-  .control-ghost.subtle {
-    opacity: 0.6;
-  }
-
-  .control-ghost.subtle:hover {
-    opacity: 1;
-  }
-
-  /* Code styling */
-  code {
-    font-family: var(--nx-font-mono);
-    font-size: 0.9em;
-    background: var(--nx-accent-subtle);
-    color: var(--nx-accent);
-    padding: 2px 4px;
-    border-radius: 4px;
-  }
-
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .command-title {
-      font-size: 24px;
-    }
-    
-    .command-context {
-      font-size: 15px;
-    }
-    
-    .command-trigger {
-      padding: var(--nx-space-3) var(--nx-space-6);
-      font-size: 16px;
+  @media (max-width: 600px) {
+    .continue-pane {
+      padding: 0.875rem 1rem;
     }
   }
 </style>

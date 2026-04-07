@@ -51,49 +51,47 @@
   }
 </script>
 
-<section class="thread-card" aria-label="Recent work thread">
-  <div class="thread-header">
-    <span class="thread-badge">Continue thread</span>
-    {#if !memoryEnabled}
-      <span class="thread-hint">Memory off</span>
-    {:else if !tabsPermission}
-      <span class="thread-hint">Needs activity permission</span>
-    {/if}
+<section class="thread-pane" aria-label="Recent work thread">
+  <div class="pane-eyebrow">
+    Recent Thread
+    {#if !memoryEnabled}<span class="pane-hint">· Memory off</span>{:else if !tabsPermission}<span class="pane-hint">· Needs activity permission</span>{/if}
   </div>
-  <h2 class="thread-title">{thread.label}</h2>
-  <p class="thread-meta">
-    {thread.pageCount} tabs · ~{thread.activeMinutesEstimate} min active · last touch
-    {new Date(thread.lastActivityAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
-  </p>
-  <ul class="thread-pages">
-    {#each thread.pages.slice(0, 6) as p}
-      <li>
-        <img class="favicon" src={p.iconUrl} alt="" width="18" height="18" />
-        <a href={p.url} rel="noreferrer" target="_blank">{p.title}</a>
-        <span class="domain">{p.domain}</span>
-      </li>
-    {/each}
-  </ul>
-  {#if thread.pages.length > 6}
-    <p class="more">+{thread.pages.length - 6} more in this thread</p>
-  {/if}
+
+  <div class="thread-row">
+    <div class="thread-info">
+      <p class="thread-title">{thread.label}</p>
+      <p class="thread-meta">{thread.pageCount} tabs · ~{thread.activeMinutesEstimate}m</p>
+    </div>
+
+    <div class="thread-favicons">
+      {#each thread.pages.slice(0, 5) as p}
+        <div class="fav" title={p.title}>
+          {#if p.iconUrl}
+            <img src={p.iconUrl} alt="" width="16" height="16" />
+          {:else}
+            <div class="fav-fallback"></div>
+          {/if}
+        </div>
+      {/each}
+      {#if thread.pages.length > 5}
+        <div class="fav fav-more">+{thread.pages.length - 5}</div>
+      {/if}
+    </div>
+  </div>
 
   <div class="thread-actions">
     <button class="btn btn-primary" on:click={handleResume} disabled={resuming || !tabsPermission}>
-      Resume Session
+      {resuming ? 'Resuming…' : 'Resume Session'}
     </button>
     <button class="btn btn-ghost" on:click={handleExplain} disabled={loadingExplanation || explanation !== null || !tabsPermission}>
-      Explain Work ✨
+      {loadingExplanation ? 'Thinking…' : 'Explain Work'}
     </button>
   </div>
 
-  {#if loadingExplanation}
-    <div class="explain-skeleton sk sk-line" style="margin-top: 1rem; width: 100%;"></div>
-    <div class="explain-skeleton sk sk-line" style="width: 80%;"></div>
-  {:else if explanation}
+  {#if explanation}
     <div class="explanation-box">
       <p class="explanation-summary">{explanation.summary}</p>
-      <p class="explanation-disclosure">Based on: {explanation.basedOn.join(', ')} <span class="ai-label">AI-generated</span></p>
+      <p class="explanation-disclosure">Based on: {explanation.basedOn.join(', ')} <span class="ai-label">AI</span></p>
     </div>
   {:else if explainError}
     <p class="explanation-error">Unable to generate explanation right now.</p>
@@ -101,105 +99,155 @@
 </section>
 
 <style>
-  .thread-card {
-    background: transparent;
-    border: none;
-    padding: var(--nx-space-6) 0;
+  .thread-pane {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
   }
-  .thread-header {
-    display: flex;
-    align-items: center;
-    gap: var(--nx-space-2);
-    margin-bottom: var(--nx-space-2);
+
+  :global(html.light) .thread-pane {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.07);
   }
-  .thread-badge {
+
+  .pane-eyebrow {
     font-size: 11px;
     font-weight: 600;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--nx-accent);
-  }
-  .thread-hint {
-    font-size: 12px;
     color: var(--nx-fg-muted);
+    margin-bottom: 0.625rem;
   }
+
+  .pane-hint {
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .thread-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .thread-info {
+    min-width: 0;
+  }
+
   .thread-title {
-    margin: 0 0 calc(var(--nx-space-1) + 2px);
-    font-size: 1.25rem;
+    margin: 0 0 0.2rem;
+    font-size: 15px;
     font-weight: 600;
     letter-spacing: -0.01em;
     color: var(--nx-fg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
+
   .thread-meta {
-    margin: 0 0 var(--nx-space-4);
-    font-size: 13px;
-    color: var(--nx-fg-secondary);
-  }
-  .thread-pages {
-    list-style: none;
     margin: 0;
-    padding: 0;
+    font-size: 12px;
+    color: var(--nx-fg-muted);
+  }
+
+  .thread-favicons {
     display: flex;
-    flex-direction: column;
-    gap: var(--nx-space-2);
-  }
-  .thread-pages li {
-    display: grid;
-    grid-template-columns: 20px 1fr auto;
     align-items: center;
-    gap: var(--nx-space-2);
-    font-size: 14px;
+    flex-shrink: 0;
   }
-  .favicon {
-    border-radius: 4px;
-    background: var(--nx-bg);
-  }
-  .thread-pages a {
-    color: var(--nx-fg);
-    text-decoration: none;
+
+  .fav {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--nx-bg-elevated);
+    border: 1.5px solid var(--nx-bg-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: -5px;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    opacity: 0.9;
-    transition: color 0.2s ease, opacity 0.2s ease;
+    position: relative;
+    z-index: 1;
   }
-  .thread-pages a:hover {
-    color: var(--nx-accent);
-    opacity: 1;
+
+  .fav:first-child { margin-left: 0; }
+
+  .fav-fallback {
+    width: 100%;
+    height: 100%;
+    background: var(--nx-line);
   }
-  .domain {
-    font-size: 12px;
+
+  .fav-more {
+    font-size: 10px;
+    font-weight: 700;
     color: var(--nx-fg-muted);
-    opacity: 0.6;
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    justify-self: end;
+    background: var(--nx-bg-elevated);
   }
-  .more {
-    margin: var(--nx-space-3) 0 0;
-    font-size: 12px;
-    color: var(--nx-fg-muted);
-  }
+
   .thread-actions {
     display: flex;
-    gap: var(--nx-space-2);
-    margin-top: var(--nx-space-5);
+    gap: 0.5rem;
   }
-  .explanation-box {
-    margin-top: var(--nx-space-4);
-    padding: var(--nx-space-3);
-    background: var(--nx-bg-surface);
-    border-radius: var(--nx-radius);
-    border: 1px dashed var(--nx-line);
+
+  .btn {
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.15s ease;
   }
-  .explanation-summary {
-    margin: 0 0 var(--nx-space-2);
-    font-size: 14px;
+
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background: var(--nx-accent);
+    color: #fff;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    opacity: 0.88;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--nx-fg-muted);
+    border: 1px solid var(--nx-line);
+  }
+
+  .btn-ghost:hover:not(:disabled) {
     color: var(--nx-fg);
-    line-height: 1.45;
+    border-color: var(--nx-fg-muted);
   }
+
+  .explanation-box {
+    margin-top: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    background: rgba(255,255,255,0.02);
+    border-radius: 6px;
+    border-left: 2px solid var(--nx-accent);
+  }
+
+  .explanation-summary {
+    margin: 0 0 0.375rem;
+    font-size: 13px;
+    color: var(--nx-fg);
+    line-height: 1.5;
+  }
+
   .explanation-disclosure {
     margin: 0;
     font-size: 11px;
@@ -208,53 +256,20 @@
     justify-content: space-between;
     align-items: center;
   }
+
   .ai-label {
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     background: var(--nx-accent-subtle);
     color: var(--nx-accent);
-    padding: 2px 6px;
+    padding: 1px 5px;
     border-radius: 4px;
   }
+
   .explanation-error {
-    margin-top: var(--nx-space-4);
-    font-size: 13px;
+    margin-top: 0.5rem;
+    font-size: 12px;
     color: #ef4444;
-  }
-  .btn {
-    padding: var(--nx-space-2) var(--nx-space-5);
-    border-radius: 999px;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .btn-primary {
-    background: var(--nx-accent);
-    color: #fff;
-    box-shadow: 0 4px 12px color-mix(in oklab, var(--nx-accent) 20%, transparent);
-  }
-  .btn-primary:hover:not(:disabled) {
-    background: var(--nx-accent-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px color-mix(in oklab, var(--nx-accent) 30%, transparent);
-  }
-  .btn-ghost {
-    background: transparent;
-    color: var(--nx-fg-muted);
-    border: 1px dashed var(--nx-line);
-  }
-  .btn-ghost:hover:not(:disabled) {
-    background: transparent;
-    border-style: solid;
-    border-color: var(--nx-accent-subtle);
-    color: var(--nx-fg);
   }
 </style>

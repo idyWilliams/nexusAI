@@ -43,11 +43,13 @@
     return d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
   }
 
-  function greeting(d: Date) {
+  function greeting(d: Date, userName?: string) {
     const h = d.getHours()
-    if (h < 12) return 'Good morning'
-    if (h < 17) return 'Good afternoon'
-    return 'Good evening'
+    let timeGreeting = 'Good evening'
+    if (h < 12) timeGreeting = 'Good morning'
+    else if (h < 17) timeGreeting = 'Good afternoon'
+
+    return userName ? `${timeGreeting}, ${userName}` : timeGreeting
   }
 
   async function refresh() {
@@ -199,65 +201,59 @@
   </main>
 {:else}
   <main class="page shell" aria-label="NEXUS new tab" class:minimal={mode === 'minimal'} class:focus={mode === 'focus'}>
-    <header class="nexus-header">
-      <div class="header-content">
-        <div class="brand">
-          <div class="time-display" aria-live="polite">{timeLabel}</div>
-          <h1 class="greeting">{greeting(new Date())}</h1>
-          {#if mode !== 'minimal'}
-            <p class="tagline">Calm surface. One intention at a glance.</p>
-          {/if}
-        </div>
-        
-        <div class="header-controls">
-          {#if mode !== 'minimal'}
-            <div class="mode-indicator">
-              <span class="mode-label">{mode}</span>
-            </div>
-          {/if}
-          
-          <div class="control-actions">
-            {#if mode === 'normal'}
-              <button
-                type="button"
-                class="control-btn recovery-btn"
-                class:subtle={recoveryRecent}
-                on:click={() => (gameOpen = true)}
-                aria-label="Open recovery moment"
-              >
-                <span class="btn-icon">◉</span>
-                <span class="btn-text">Recover</span>
-              </button>
-            {:else if mode === 'focus'}
-              <button
-                type="button"
-                class="control-btn subtle-btn"
-                on:click={() => (gameOpen = true)}
-                aria-label="Recovery (subtle)"
-              >
-                Recovery
-              </button>
-            {/if}
-            
-            <button
-              type="button"
-              class="control-btn settings-btn"
-              on:click={() => (settingsOpen = true)}
-              aria-label="Open settings"
-            >
-              <span class="btn-icon">⚙</span>
-              {#if mode !== 'minimal'}<span class="btn-text">Settings</span>{/if}
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
 
-    <!-- Premium main content with asymmetric layout -->
+    <!-- Premium main content -->
     <div class="nexus-content" class:minimal={mode === 'minimal'} class:focus={mode === 'focus'}>
       <div class="content-grid">
         <!-- Primary focus area -->
         <div class="primary-zone">
+          <header class="app-header">
+            <div class="brand-hero">
+              <div class="time-display" aria-live="polite">{timeLabel}</div>
+              <h1 class="greeting">{greeting(new Date(), hydrate.settings.userName)}</h1>
+            </div>
+
+            <div class="shell-utilities">
+              {#if mode !== 'minimal'}
+                <div class="mode-indicator">
+                  <span class="mode-label">{mode}</span>
+                </div>
+              {/if}
+              <div class="control-actions">
+                {#if mode === 'normal'}
+                  <button
+                    type="button"
+                    class="control-btn recovery-btn"
+                    class:subtle={recoveryRecent}
+                    on:click={() => (gameOpen = true)}
+                    aria-label="Open recovery moment"
+                  >
+                    <span class="btn-icon">◉</span>
+                    <span class="btn-text">Recover</span>
+                  </button>
+                {:else if mode === 'focus'}
+                  <button
+                    type="button"
+                    class="control-btn subtle-btn"
+                    on:click={() => (gameOpen = true)}
+                    aria-label="Recovery (subtle)"
+                  >
+                    Recovery
+                  </button>
+                {/if}
+                <button
+                  type="button"
+                  class="control-btn settings-btn"
+                  on:click={() => (settingsOpen = true)}
+                  aria-label="Open settings"
+                >
+                  <span class="btn-icon">⚙</span>
+                  {#if mode !== 'minimal'}<span class="btn-text">Settings</span>{/if}
+                </button>
+              </div>
+            </div>
+          </header>
+
           {#if mode !== 'minimal'}
             <section class="continue-section" aria-label="Primary action">
               <ContinueModule
@@ -354,11 +350,12 @@
 
 <style>
   .page {
-    min-height: 100%;
-    padding: clamp(1.25rem, 4vw, 2.75rem);
-    max-width: 980px;
+    min-height: 100vh;
+    padding: clamp(1.5rem, 4vw, 3rem) clamp(1.5rem, 4vw, 2.5rem);
+    max-width: 1200px;
     margin: 0 auto;
     transition: opacity 0.35s ease;
+    position: relative;
   }
   .shell {
     opacity: 1;
@@ -472,68 +469,50 @@
     }
   }
 
-  /* Premium NEXUS Design System */
-  .nexus-header {
-    padding: var(--nx-space-12) var(--nx-space-8) var(--nx-space-4);
-    background: transparent;
-    position: relative;
-    z-index: 10;
-  }
-
-  .header-content {
-    max-width: 1200px;
-    margin: 0 auto;
+  /* App Header & Utilities */
+  .app-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: var(--nx-space-8);
+    align-items: flex-end;
+    margin-bottom: var(--nx-space-2);
   }
 
-  .brand {
-    flex: 1;
-    min-width: 0;
+  .shell-utilities {
+    display: flex;
+    align-items: center;
+    gap: var(--nx-space-4);
+  }
+
+  .brand-hero {
+    display: flex;
+    flex-direction: column;
   }
 
   .time-display {
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--nx-fg-muted);
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    margin-bottom: var(--nx-space-1);
+    margin-bottom: var(--nx-space-2);
   }
 
   .greeting {
-    font-size: clamp(28px, 4vw, 48px);
-    font-weight: 700;
+    font-size: clamp(22px, 3vw, 26px);
+    font-weight: 600;
     line-height: 1.1;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
     color: var(--nx-fg);
-    margin: 0 0 var(--nx-space-2);
-  }
-
-  .tagline {
-    font-size: 15px;
-    color: var(--nx-fg-muted);
     margin: 0;
-    font-weight: 400;
-    opacity: 0.85;
   }
 
-  .header-controls {
-    display: flex;
-    align-items: center;
-    gap: var(--nx-space-4);
-    flex-shrink: 0;
-  }
 
-  .mode-indicator {
     padding: var(--nx-space-1) var(--nx-space-3);
-    background: var(--nx-accent-subtle);
-    border: 1px solid var(--nx-accent);
+    background: transparent;
+    border: 1px dotted var(--nx-line-strong);
     border-radius: 999px;
-    color: var(--nx-accent);
-    font-size: 12px;
+    color: var(--nx-fg-muted);
+    font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -541,31 +520,29 @@
 
   .control-actions {
     display: flex;
-    gap: var(--nx-space-2);
+    gap: var(--nx-space-3);
     align-items: center;
   }
 
   .control-btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: var(--nx-space-2);
     padding: var(--nx-space-2) var(--nx-space-4);
     border-radius: 999px;
     font-size: 13px;
     font-weight: 600;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: pointer;
     border: none;
-    background: var(--nx-bg-elevated);
-    color: var(--nx-fg-secondary);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* very soft lift */
+    background: transparent;
+    color: var(--nx-fg-muted);
   }
 
   .control-btn:hover {
-    background: var(--nx-bg-floating);
+    background: var(--nx-bg-surface);
     color: var(--nx-fg);
-    transform: translateY(-1px);
-    box-shadow: var(--nx-shadow-sm);
   }
 
   .control-btn.subtle {
@@ -582,24 +559,14 @@
 
   /* Premium Layout */
   .nexus-content {
-    max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
-    padding: var(--nx-space-6) var(--nx-space-8) var(--nx-space-12);
-    min-height: calc(100vh - 200px);
     position: relative;
-  }
-
-  .nexus-content.minimal {
-    padding: var(--nx-space-4);
-  }
-
-  .nexus-content.focus {
-    padding: var(--nx-space-6);
   }
 
   .content-grid {
     display: grid;
-    grid-template-columns: 1fr 400px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 300px);
     gap: var(--nx-space-8);
     align-items: start;
   }
@@ -617,7 +584,7 @@
   .primary-zone {
     display: flex;
     flex-direction: column;
-    gap: var(--nx-space-6);
+    gap: var(--nx-space-4);
   }
 
   .secondary-zone {
@@ -748,12 +715,8 @@
   }
 
   /* Header mode variations */
-  .shell.minimal .nexus-header {
-    background: transparent;
-  }
-
-  .shell.focus .nexus-header {
-    background: transparent;
+  .shell.minimal .shell-utilities {
+    opacity: 0.5;
   }
 
   /* Control button mode variations */
@@ -780,13 +743,5 @@
 
   .shell.minimal .greeting {
     font-size: clamp(32px, 4.5vw, 56px);
-  }
-
-  .shell.focus .tagline {
-    display: none;
-  }
-
-  .shell.minimal .tagline {
-    display: none;
   }
 </style>

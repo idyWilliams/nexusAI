@@ -18,6 +18,8 @@ export interface Settings {
   activityAwarenessEnabled: boolean
   density: 'compact' | 'comfortable'
   theme: 'light' | 'dark' | 'system'
+  /** User's preferred name for greetings */
+  userName?: string
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -32,5 +34,6 @@ export const DEFAULT_SETTINGS: Settings = {
   personalizationEnabled: true,
   activityAwarenessEnabled: false,
   density: 'compact',
-  theme: 'system'
+  theme: 'system',
+  userName: ''
 }

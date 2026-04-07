@@ -84,31 +84,40 @@
     position: absolute;
     right: 12px;
     font-size: 11px;
+    font-weight: 600;
     color: var(--nx-fg-muted);
     pointer-events: none;
-    opacity: 0.75;
+    opacity: 0.6;
+    background: transparent;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--nx-line);
   }
   .command-input {
     width: 100%;
-    padding: 16px 72px 16px 20px;
-    border-radius: var(--nx-radius-lg);
-    border: 1px solid var(--nx-line);
-    background: var(--nx-bg-elevated);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* very subtle native lift */
+    padding: 12px 64px 12px 16px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+    box-shadow: none;
     color: var(--nx-fg);
-    font-size: 16px;
+    font-size: 14px;
+    font-weight: 400;
     font-family: var(--nx-font-primary);
     outline: none;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.2s ease;
+  }
+  :global(html.light) .command-input {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.1);
   }
   .command-input::placeholder {
     color: var(--nx-fg-muted);
-    font-weight: 400;
   }
   .command-input:focus {
     border-color: var(--nx-accent);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1), 0 0 0 2px var(--nx-accent-subtle);
-    transform: translateY(-1px);
+    box-shadow: 0 0 0 1px var(--nx-accent);
+    background: var(--nx-bg-elevated);
   }
   .command-input:disabled {
     opacity: 0.55;
@@ -124,26 +133,42 @@
   }
   .hits {
     list-style: none;
-    margin: var(--nx-space-3) 0 0;
+    margin: var(--nx-space-2) 0 0;
     padding: 0;
     max-height: 280px;
     overflow-y: auto;
-    border: 1px solid var(--nx-line);
-    border-radius: var(--nx-radius-lg);
-    background: var(--nx-bg-elevated);
-    box-shadow: var(--nx-shadow-sm);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.02);
+    box-shadow: none;
+  }
+  :global(html.light) .hits {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.07);
   }
   .hit {
     display: grid;
-    grid-template-columns: 24px 1fr auto;
+    grid-template-columns: 20px 1fr auto;
     gap: var(--nx-space-3);
     align-items: start;
-    padding: var(--nx-space-3) var(--nx-space-4);
-    border-bottom: 1px solid transparent; /* removing hard borders */
-    transition: background 0.2s ease;
+    padding: var(--nx-space-3);
+    background: transparent;
+    border-radius: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 0;
+    transition: background 0.15s ease;
   }
-  .hit:not(:last-child) {
-    border-bottom-color: var(--nx-line);
+  :global(html.light) .hit {
+    border-bottom-color: rgba(0, 0, 0, 0.05);
+  }
+  .hit:last-child {
+    border-bottom: none;
+  }
+  .hit:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  :global(html.light) .hit:hover {
+    background: rgba(0, 0, 0, 0.03);
   }
   .favicon {
     margin-top: 2px;
@@ -159,7 +184,7 @@
     align-items: baseline;
   }
   .hit-title {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     color: var(--nx-fg);
     overflow: hidden;
@@ -188,12 +213,12 @@
     color: var(--nx-fg-muted);
   }
   .hit-open {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--nx-accent);
     text-decoration: none;
     align-self: center;
-    padding: 4px 8px;
-    border-radius: 8px;
+    padding: 3px 6px;
+    border-radius: 4px;
   }
   .hit-open:hover {
     background: var(--nx-accent-subtle);
